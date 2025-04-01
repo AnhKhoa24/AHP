@@ -64,9 +64,9 @@ AHP-School-Selection/
 - Nếu bạn muốn đóng góp, vui lòng fork repo, tạo pull request và gửi phản hồi.
 
 ## Liên Hệ
-- **Tác giả:** [Tên của bạn]
-- **Email:** [Email của bạn]
-- **Github:** [Link GitHub của bạn]
+- **Tác giả:** Huỳnh Anh Khoa
+- **Email:** anhkhoa.24052003@gmail.com
+- **Github:** ở đây chứ đâu
 
 Cảm ơn bạn đã quan tâm đến dự án! 🚀
 
