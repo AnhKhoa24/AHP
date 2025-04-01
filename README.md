@@ -6,7 +6,7 @@
 ## Công Nghệ Sử Dụng
 - **Backend:** Python (Flask hoặc FastAPI)
 - **Frontend:** HTML, jQuery, Bootstrap
-- **Cơ sở dữ liệu:** SQLite / PostgreSQL (nếu cần lưu trữ dữ liệu)
+- **Cơ sở dữ liệu:** chưa cập nhật
 - **Thư viện hỗ trợ:** NumPy, Pandas
 
 ## Chức Năng Chính
