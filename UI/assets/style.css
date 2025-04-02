@@ -18,7 +18,11 @@
 }
 
 body {
-    font-size: 14px; /* Giảm kích thước chữ toàn trang */
+    font-size: 14px;
+    background: linear-gradient(to right, #1d273b
+    , #0f172a);
+    font-weight: 600;
+     /* Gradient từ trái sang phải từ đỏ sang vàng */
 }
 
 .container {
@@ -57,4 +61,13 @@ h2 {
 .table input:focus {
     outline: none; /* Bỏ viền xanh khi click vào input */
     box-shadow: none; /* Bỏ hiệu ứng bóng khi nhập dữ liệu */
+}
+
+.bg_slides {
+    background-color:#2186ebba
+}
+
+.value {
+    margin-top: 10px;
+    font-size: 20px;
 }
