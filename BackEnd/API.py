@@ -5,6 +5,11 @@ import numpy as np
 from fastapi.middleware.cors import CORSMiddleware
 from AHP import calculate_CR 
 import uvicorn
+from connection import get_database
+
+db = get_database()
+collection = db["matrices"]
+
 
 app = FastAPI()
 app.add_middleware(
@@ -35,6 +40,14 @@ async def check_matrix(data: MatrixInput):
     
     numeric_matrix = convert_matrix_to_numbers(data.matrix)
     gt = calculate_CR(numeric_matrix)
+
+    if(gt < 0.1):
+        document = {
+        "matrix": numeric_matrix.tolist(),  
+        "cr": gt
+        }
+        collection.insert_one(document)  
+    
     return round(gt, 4)
 
 
