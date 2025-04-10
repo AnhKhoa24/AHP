@@ -22,6 +22,5 @@ $('#multiSelect').on('select2:unselect ', function (e)
     TaoCauHoi($(this).val());
 });
 
+// $('#ls_slides').find('.carousel-item.active');
 
-
-// Các hàm khác bạn cần export từ file này
