@@ -37,12 +37,14 @@ class MatrixInput(BaseModel):
 
 @app.post("/validate-matrix/")
 async def check_matrix(data: MatrixInput):
-    print("\nMa trận nhận được:")
-    for row in convert_matrix_to_numbers(data.matrix):
-        print(row)
+    # print("\nMa trận nhận được:")
+    # for row in convert_matrix_to_numbers(data.matrix):
+    #     print(row)
     
     numeric_matrix = convert_matrix_to_numbers(data.matrix)
-    gt = calculate_CR(numeric_matrix)
+    gt, PA = calculate_CR(numeric_matrix)
+    print("CR:", gt)
+    print("Criteria Weights (arr_avg):", PA)
 
     if(gt < 0.1):
         document = {
@@ -52,7 +54,10 @@ async def check_matrix(data: MatrixInput):
         collection = db["matrices"]
         collection.insert_one(document)  
     
-    return round(gt, 4)
+    return {
+        "cr": round(gt, 4),
+        "criteria_weights": PA
+    }
 
 class KeywordRequest(BaseModel):
     keyword: str

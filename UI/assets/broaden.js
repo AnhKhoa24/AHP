@@ -10,7 +10,7 @@ export function TaoBang(arr) {
     for (let i = 0; i < arr.length; i++) {
         tr_html += `<th>${arr[i]}</th>`;
 
-        var each_tr = `<td class="table-primary text-start">${arr[i]}</td>`;
+        var each_tr = `<td style="padding: 6px;" class="border-bottom border-light fw-bold table-primary text-center" style="width: 15%">${arr[i]}</td>`;
         for (let j = 0; j < arr.length; j++) {
             if (i == j) {
                 each_tr += ` <td><input type="text" value=1 class="form-control text-center rounded-0 bg-warning" id="td_${i}_${j}" readonly></td>`
@@ -24,6 +24,19 @@ export function TaoBang(arr) {
         $('#tb_matrix').append(full_tr);
     }
     $('#tr_matrix').html(tr_html);
+    TaoBangDanhGia(arr);
+}
+
+function TaoBangDanhGia(arr) {
+    $('#tb_rank').empty();
+    arr.forEach(function (item, index)
+    {
+        var html = `<tr><td style="padding: 7.2px;">${item}</td>
+                        <td></td>
+                        <td></td>
+                        </tr>`;
+        $('#tb_rank').append(html);
+    });
 }
 
 export function TaoCauHoi(arr) {
@@ -87,7 +100,7 @@ function BangPhuongAn(tieuchi_text, tieuchi_id) {
 
     var tBody = `<tbody>`;
     for(let i = 0; i < danhSach.length; i++){
-        let each_tr = `<tr><td class="table-primary text-center" style="width:30%">${danhSach[i]}</td>`;
+        let each_tr = `<tr><td class="table-primary text-center border-bottom border-light fw-bold" style="width:30%">${danhSach[i]}</td>`;
         for(let j = 0; j < danhSach.length; j++){
             if (i == j) {
                 each_tr += ` <td><input type="text" value=1 class="form-control text-center rounded-0 bg-warning" id="${tieuchi_id}_${i}_${j}" readonly></td>`
@@ -101,7 +114,7 @@ function BangPhuongAn(tieuchi_text, tieuchi_id) {
         tBody += each_tr;
     };
 
-    tBody += `<tr><td class="pd-2" colspan="${danhSach.length}">CR:</td><td></td></tr></tbody>`;
+    tBody += `<tr><td style="padding: 5px;" colspan="${danhSach.length}">CR:</td><td id="cr_${tieuchi_id}" style="padding: 5px;"></td></tr></tbody>`;
 
     return `<div class="col-md-6"><table class="table table-bordered text-center">`+tHead + tBody + `</table></div>`;
 }
