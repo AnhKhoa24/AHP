@@ -72,7 +72,10 @@ function sendMatrix(matrix) {
     });
 }
 
-
+function BoLuaChon(button) {
+    // Xóa dòng tr chứa nút được click
+    $(button).closest('tr').remove();
+}
 
 // $('.carousel-control-prev').on('click', function () {
 //     setTimeout(() => {
@@ -86,3 +89,31 @@ function sendMatrix(matrix) {
 //         console.log('Slide hiện tại có ID:', activeId);
 //     }, 600);
 // });
+
+function nhapmatran(id, i, j) {
+    var value = $(`#${id}_${i}_${j}`).val();
+    $(`#${id}_${j}_${i}`).val(invertFraction(value));
+}
+
+function gcd(a, b) {
+    return b === 0 ? a : gcd(b, a % b);
+}
+
+function invertFraction(input) {
+    if (input === "0" || input === 0) return "0";
+    let numerator, denominator;
+    if (input.toString().includes("/")) {
+        [numerator, denominator] = input.toString().split("/").map(Number);
+    } else {
+        numerator = Number(input);
+        denominator = 1;
+    }
+    let newNumerator = denominator;
+    let newDenominator = numerator;
+    if (newDenominator === 0) return "0";
+    let ucln = gcd(Math.abs(newNumerator), Math.abs(newDenominator));
+    newNumerator /= ucln;
+    newDenominator /= ucln;
+    if (newDenominator === 1) return `${newNumerator}`;
+    else return `${newNumerator}/${newDenominator}`;
+}
