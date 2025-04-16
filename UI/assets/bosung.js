@@ -58,7 +58,7 @@ function validateMatrix(matrix) {
 }
 function sendMatrix(matrix) {
     $.ajax({
-        url: "http://127.0.0.1:8000/validate-matrix/",
+        url: "http://127.0.0.1:8000/validate-matrix",
         type: "POST",
         contentType: "application/json",
         data: JSON.stringify({ matrix: matrix }),
@@ -67,9 +67,11 @@ function sendMatrix(matrix) {
             if(response.cr > 0 && response.cr < 0.1)
             {
                 $('#value_cr').closest('div').removeClass('bg-danger').addClass('bg-success');
+                $('.c_choose').removeClass('d-none');
             }else
             {
                 $('#value_cr').closest('div').removeClass('bg-success').addClass('bg-danger');
+                $('.c_choose').addClass('d-none');
             }
             $('#value_cr').html('CR = ' + response.cr);
             genDanhGia(response.criteria_weights);
@@ -89,7 +91,7 @@ function DoiDG(arr) {
     arr.forEach(function (item, index)
     {
         var html = `<tr><td style="padding: 7.2px;">${item.text}</td>
-                        <td style="padding: 7.2px;">${item.cw.toFixed(4)}</td>
+                        <td style="padding: 7.2px;" data-cw_${item.id} = "${item.cw}">${item.cw.toFixed(4)}</td>
                         <td style="padding: 7.2px;">${index+1}</td>
                         </tr>`;
         $('#tb_rank').append(html);
@@ -170,7 +172,7 @@ function GetMatrix(matrixLegth, nametd) {
 
 function sendEach(matrix, id_name) {
     $.ajax({
-        url: "http://127.0.0.1:8000/validate-matrix/",
+        url: "http://127.0.0.1:8000/validate-matrix",
         type: "POST",
         contentType: "application/json",
         data: JSON.stringify({ matrix: matrix }),

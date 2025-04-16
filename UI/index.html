@@ -47,7 +47,7 @@
                 </table>
             </div>
             <div class="col-md">
-                <table class="table table-bordered text-center">
+                <table class="table table-bordered text-center d-none" id="tb_rank_head">
                     <thead class="table-primary">
                         <tr>
                             <th style="width: 45%">Tiêu chí</th>
@@ -63,12 +63,12 @@
         </div>
     </div>
 
-    <div class="container mt-2 mb-2">
+    <div class="container mt-2 mb-2 d-none so_sanh_cap">
         <span class="text-light">Dựa vào ý kiến của chuyên gia so sánh, đánh giá mức độ quan trọng của các
             tiêu chí</span>
     </div>
 
-    <div class="container d-none" id="so_sanh_cap">
+    <div class="container d-none so_sanh_cap" id="so_sanh_cap">
         <div class="row">
             <div class="col-10">
                 <div id="carouselExampleCaptions" class="rounded-3 border bg_slides carousel slide shadow-lg"
@@ -97,10 +97,10 @@
         <span class="text-light text-center fs-4">2. Chọn danh sách phương án</span>
     </div> -->
 
-    <div class="container mt-5">
+    <div class="container mt-5 d-none c_choose">
         <span class="text-light text-center fs-4">2. Chọn danh sách phương án</span>
     </div>
-    <div class="container mt-2" id="c_choose">
+    <div class="container mt-2 d-none c_choose" id="c_choose">
         <div class="row">
             <div class="col-md-4">
                 <div class="p-3 rounded shadow text-light" style="background-color: #3b7cbdc1;">
@@ -147,8 +147,8 @@
         </div>
     </div>
 
-    <div class="container mt-2">
-        <span class="text-light text-center">Tạo bản-></span>
+    <div class="container mt-3 mb-2 d-none">
+        <span class="text-light text-center">Bảng đánh giá các phương án</span>
     </div>
     <div class="container mt-2 mb-2">
         <div class="row" id="list_bang_phuong_an">

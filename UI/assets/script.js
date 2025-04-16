@@ -12,6 +12,7 @@ $(document).ready(function () {
     });
     $('#select_school').select2({
         placeholder: "Chọn trường",
+        width: '100%',
         allowClear: true,
         ajax: {
             url: "http://localhost:8000/getUni",  // đường dẫn đến API
@@ -88,6 +89,11 @@ $('#multiSelect').on('select2:select', function (e) {
     var selectedTexts = $('#multiSelect').select2('data').map(item => item.text);
     TaoBang(selectedTexts);
     TaoCauHoi(selectedTexts);
+    if(selectedTexts.length > 0) {
+        $("#tb_rank_head").removeClass('d-none');
+    }else{
+        $("#tb_rank_head").addClass('d-none');
+    }
 });
 
 
@@ -95,6 +101,11 @@ $('#multiSelect').on('select2:unselect ', function (e) {
     var selectedTexts = $('#multiSelect').select2('data').map(item => item.text);
     TaoBang(selectedTexts);
     TaoCauHoi(selectedTexts);
+    if(selectedTexts.length > 0) {
+        $("#tb_rank_head").removeClass('d-none');
+    }else{
+        $("#tb_rank_head").addClass('d-none');
+    }
 });
 
 $("#tao_mt_phuongan").on('click', function () {

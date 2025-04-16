@@ -35,7 +35,7 @@ def convert_matrix_to_numbers(matrix):
 class MatrixInput(BaseModel):
     matrix: List[List[str]]  
 
-@app.post("/validate-matrix/")
+@app.post("/validate-matrix")
 async def check_matrix(data: MatrixInput):
     # print("\nMa trận nhận được:")
     # for row in convert_matrix_to_numbers(data.matrix):

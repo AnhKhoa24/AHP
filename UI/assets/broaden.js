@@ -10,7 +10,7 @@ export function TaoBang(arr) {
     for (let i = 0; i < arr.length; i++) {
         tr_html += `<th>${arr[i]}</th>`;
 
-        var each_tr = `<td style="padding: 6px;" class="border-bottom border-light fw-bold table-primary text-center" style="width: 15%">${arr[i]}</td>`;
+        var each_tr = `<td style="padding: 6px;" class="border-bottom border-light fw-bold table-primary text-center" style="width: 20%">${arr[i]}</td>`;
         for (let j = 0; j < arr.length; j++) {
             if (i == j) {
                 each_tr += ` <td><input type="text" value=1 class="form-control text-center rounded-0 bg-warning" id="td_${i}_${j}" readonly></td>`
@@ -66,9 +66,9 @@ export function TaoCauHoi(arr) {
 
     });
     if (arr.length > 2) {
-        $('#so_sanh_cap').removeClass('d-none');
+        $('.so_sanh_cap').removeClass('d-none');
     } else {
-        $('#so_sanh_cap').addClass('d-none');
+        $('.so_sanh_cap').addClass('d-none');
     }
 }
 
