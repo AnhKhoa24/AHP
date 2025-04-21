@@ -6,16 +6,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from AHP import calculate_CR 
 import uvicorn
 from connection import get_database
+from queryUniversity import search_in_mongodb
+from queryUniversity import search_major
+from fastapi.responses import JSONResponse
+from schemas import DuLieuGui
+from Services.FinalRanking import FinalRanking
 
 db = get_database()
-collection = db["matrices"]
-
 
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
-    allow_credentials=True,
+    # allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],  
     allow_headers=["*"],
 )
@@ -32,24 +36,56 @@ def convert_matrix_to_numbers(matrix):
 class MatrixInput(BaseModel):
     matrix: List[List[str]]  
 
-@app.post("/validate-matrix/")
+@app.post("/validate-matrix")
 async def check_matrix(data: MatrixInput):
-    print("\n📌 Ma trận nhận được:")
+    print("\nMa trận nhận được:")
     for row in convert_matrix_to_numbers(data.matrix):
         print(row)
     
     numeric_matrix = convert_matrix_to_numbers(data.matrix)
-    gt = calculate_CR(numeric_matrix)
+    gt, PA = calculate_CR(numeric_matrix)
+    print("CR:", gt)
+    print("Criteria Weights (arr_avg):", PA)
 
     if(gt < 0.1):
         document = {
         "matrix": numeric_matrix.tolist(),  
         "cr": gt
         }
+        collection = db["matrices"]
         collection.insert_one(document)  
     
-    return round(gt, 4)
+    return {
+        "cr": round(gt, 4),
+        "criteria_weights": PA
+    }
 
+class KeywordRequest(BaseModel):
+    keyword: str
+
+@app.post("/getUni")
+async def get_universities(data: KeywordRequest):
+    results = search_in_mongodb(db, data.keyword)
+    for r in results:
+        r["_id"] = str(r["_id"])
+    return JSONResponse(content=results)
+
+class TimNganh(BaseModel):
+    matruong: str
+    keyword: str
+@app.post("/getMajor")
+async def get_universities(data: TimNganh):
+    results = search_major(db, data.matruong, data.keyword)
+    return JSONResponse(content=results)
+
+@app.post("/ranking_final")
+async def nhan_du_lieu(data: DuLieuGui):
+    return FinalRanking(data)
+
+@app.post("/test")
+async def test():
+    print("kdkd")
+    return "ok"
 
 if __name__ == "__main__":
     import uvicorn
