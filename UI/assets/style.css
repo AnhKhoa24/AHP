@@ -76,4 +76,9 @@ h2 {
     table-layout: fixed;
     width: 100%;
 }
+/* Ẩn mũi tên chỉ cho dropdown có lớp .no-arrow */
+.no-arrow::after {
+    display: none;
+}
+
 

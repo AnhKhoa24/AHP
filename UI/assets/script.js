@@ -2,6 +2,7 @@ import { TaoBang } from './broaden.js';
 import { TaoCauHoi } from './broaden.js';
 import { genChoices } from './broaden.js';
 import { TaoBangPhuongAn } from './broaden.js';
+import { TaoBangTamLuuAo } from './broaden.js';
 
 
 $(document).ready(function () {
@@ -109,7 +110,10 @@ $('#multiSelect').on('select2:unselect ', function (e) {
 });
 
 $("#tao_mt_phuongan").on('click', function () {
+
     TaoBangPhuongAn();
+    TaoBangTamLuuAo();
+    capNhatTienTrinh(80);
 });
 
 // $('#ls_slides').find('.carousel-item.active');

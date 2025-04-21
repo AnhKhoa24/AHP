@@ -8,9 +8,9 @@ import uvicorn
 from connection import get_database
 from queryUniversity import search_in_mongodb
 from queryUniversity import search_major
-from fastapi import Query
 from fastapi.responses import JSONResponse
-
+from schemas import DuLieuGui
+from Services.FinalRanking import FinalRanking
 
 db = get_database()
 
@@ -18,7 +18,8 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
-    allow_credentials=True,
+    # allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],  
     allow_headers=["*"],
 )
@@ -37,9 +38,9 @@ class MatrixInput(BaseModel):
 
 @app.post("/validate-matrix")
 async def check_matrix(data: MatrixInput):
-    # print("\nMa trận nhận được:")
-    # for row in convert_matrix_to_numbers(data.matrix):
-    #     print(row)
+    print("\nMa trận nhận được:")
+    for row in convert_matrix_to_numbers(data.matrix):
+        print(row)
     
     numeric_matrix = convert_matrix_to_numbers(data.matrix)
     gt, PA = calculate_CR(numeric_matrix)
@@ -76,6 +77,15 @@ class TimNganh(BaseModel):
 async def get_universities(data: TimNganh):
     results = search_major(db, data.matruong, data.keyword)
     return JSONResponse(content=results)
+
+@app.post("/ranking_final")
+async def nhan_du_lieu(data: DuLieuGui):
+    return FinalRanking(data)
+
+@app.post("/test")
+async def test():
+    print("kdkd")
+    return "ok"
 
 if __name__ == "__main__":
     import uvicorn

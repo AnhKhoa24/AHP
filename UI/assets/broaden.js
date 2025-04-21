@@ -74,8 +74,8 @@ export function TaoCauHoi(arr) {
 
 export function genChoices() {
     var html = `<tr>
-    <td class="pt-1 pb-1 text-center" style="width: 45%">` + $('#select_school option:selected').text() + `</td>
-    <td class="pt-1 pb-1 text-center" style="width: 25%">` + $('#select_major option:selected').text() + `</td>
+    <td class="pt-1 pb-1 text-center truong" style="width: 45%">` + $('#select_school option:selected').text() + `</td>
+    <td class="pt-1 pb-1 text-center nganh" style="width: 25%">` + $('#select_major option:selected').text() + `</td>
     <td class="pt-1 pb-1 text-center kihieu" style="width: 20%">` + $('#select_school').val() + '-' + $('#select_major').val() + `</td>
     <td class="text-center align-middle" style="width: 10%">
     <div class="d-flex justify-content-center pt-1 pb-1">
@@ -114,9 +114,9 @@ function BangPhuongAn(tieuchi_text, tieuchi_id) {
         tBody += each_tr;
     };
 
-    tBody += `<tr><td style="padding: 5px;" colspan="${danhSach.length}">CR:</td><td id="cr_${tieuchi_id}" style="padding: 5px;"></td></tr></tbody>`;
+    tBody += `<tr><td style="padding: 5px;" colspan="${danhSach.length}">CR:</td><td class="cr_phuongan" id="cr_${tieuchi_id}" style="padding: 5px;"></td></tr></tbody>`;
 
-    return `<div class="col-md-6"><table class="table table-bordered text-center">`+tHead + tBody + `</table></div>`;
+    return `<div class="col-md-6 mb-2"><table class="table table-bordered text-center">`+tHead + tBody + `</table></div>`;
 }
 export function TaoBangPhuongAn()
 {
@@ -126,3 +126,26 @@ export function TaoBangPhuongAn()
         $("#list_bang_phuong_an").append(BangPhuongAn(item.text, item.id));
     });
 } 
+
+
+export function TaoBangTamLuuAo()
+{
+    var tieuchis = $('#multiSelect').select2('data').map(({ id, text }) => ({ id, text }));
+    var html_TH = `<tr><th></th>`;
+    tieuchis.forEach(function(item, index) {
+        html_TH += `<th id="thCW_${item.id}">${item.text}</th>`;
+    });
+    html_TH += `</tr>`;
+    $('#cw_head').html(html_TH);
+    let danhSach = $('.kihieu').map((i, el) => $(el).text().trim()).get();
+
+    $("#cw_body").empty();
+    danhSach.forEach(function(item, index) {
+        var tr_temp = `<tr><td>${item}</td>`;
+        tieuchis.forEach(function(item2, index2) {
+            tr_temp += `<td id="cw_${item2.id}_${index}"></td>`;
+        });
+        tr_temp += `</tr>`;
+        $("#cw_body").append(tr_temp);
+    });
+}

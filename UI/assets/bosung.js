@@ -58,20 +58,20 @@ function validateMatrix(matrix) {
 }
 function sendMatrix(matrix) {
     $.ajax({
-        url: "http://127.0.0.1:8000/validate-matrix",
+        url: "http://localhost:8000/validate-matrix",
         type: "POST",
         contentType: "application/json",
         data: JSON.stringify({ matrix: matrix }),
         success: function (response) {
             // console.log("Kết quả:", response);
-            if(response.cr > 0 && response.cr < 0.1)
-            {
+            if (response.cr > 0 && response.cr < 0.1) {
                 $('#value_cr').closest('div').removeClass('bg-danger').addClass('bg-success');
                 $('.c_choose').removeClass('d-none');
-            }else
-            {
+                capNhatTienTrinh(20);
+            } else {
                 $('#value_cr').closest('div').removeClass('bg-success').addClass('bg-danger');
                 $('.c_choose').addClass('d-none');
+                capNhatTienTrinh(0);
             }
             $('#value_cr').html('CR = ' + response.cr);
             genDanhGia(response.criteria_weights);
@@ -88,11 +88,10 @@ function genDanhGia(arr_cw) {
 }
 function DoiDG(arr) {
     $('#tb_rank').empty();
-    arr.forEach(function (item, index)
-    {
+    arr.forEach(function (item, index) {
         var html = `<tr><td style="padding: 7.2px;">${item.text}</td>
-                        <td style="padding: 7.2px;" data-cw_${item.id} = "${item.cw}">${item.cw.toFixed(4)}</td>
-                        <td style="padding: 7.2px;">${index+1}</td>
+                        <td style="padding: 7.2px;" data-cw= "${item.cw}" id="cw_${item.id}">${item.cw.toFixed(4)}</td>
+                        <td style="padding: 7.2px;">${index + 1}</td>
                         </tr>`;
         $('#tb_rank').append(html);
     });
@@ -132,7 +131,7 @@ function nhapmatran(id, i, j) {
     let matrix = GetMatrix(danhSach.length, id);
     if (validateMatrix(matrix)) {
         console.log(matrix);
-        sendEach(matrix, `cr_${id}`);
+        sendEach(matrix, `${id}`);
     }
 }
 
@@ -177,18 +176,159 @@ function sendEach(matrix, id_name) {
         contentType: "application/json",
         data: JSON.stringify({ matrix: matrix }),
         success: function (response) {
-            if(response.cr > 0 && response.cr < 0.1){
-                $(`#${id_name}`).html(`${response.cr}`);
-                $(`#${id_name}`).closest("tr").find("td").removeClass('bg-warning');
-                $(`#${id_name}`).closest("tr").find("td").toggleClass('bg-success');
-            }else{
-                $(`#${id_name}`).html(`${response.cr}`);
-                $(`#${id_name}`).closest("tr").find("td").removeClass('bg-success');
-                $(`#${id_name}`).closest("tr").find("td").toggleClass('bg-warning');
+            if (response.cr > 0 && response.cr < 0.1) {
+                $(`#cr_${id_name}`).html(`${response.cr}`);
+                $(`#cr_${id_name}`).closest("tr").find("td").removeClass('bg-danger').addClass('bg-success');
+            } else {
+                $(`#cr_${id_name}`).html(`${response.cr}`);
+                $(`#cr_${id_name}`).closest("tr").find("td").removeClass('bg-success').addClass('bg-danger');
             }
+            SaveBangAo(id_name, response.criteria_weights);
         },
         error: function (err) {
             console.log("Lỗi:", err);
         }
     });
 }
+
+
+function SaveBangAo(id_name, arr) {
+    console.log(arr);
+    arr.forEach(function (item, index) {
+        $(`#cw_${id_name}_${index}`).html(item);
+        console.log(`#cw_${id_name}_${index}`);
+    });
+    if(checkCRPA())
+    {
+        RankingFinal()
+    }else
+    {
+        $("#final_result").addClass("d-none")
+    }
+}
+
+function TakeCWTC() {
+    var listTC = $('#multiSelect').val();
+    var listCWTC = [];
+    listTC.forEach(function (item, index) {
+        listCWTC.push({
+            id: item,
+            cw: $(`#cw_${item}`).data('cw')
+        });
+    });
+    return listCWTC;
+}
+
+function TakeCWPA() {
+    let danhSach = $('.kihieu').map((i, el) => $(el).text().trim()).get();
+    var listTC = $('#multiSelect').val();
+    var listCWPA = [];
+    listTC.forEach(function (item, index) {
+        let tempArr = [];
+        danhSach.forEach(function (item2, index2) {
+            tempArr.push({
+                id: item2,     
+                cw:$(`#cw_${item}_${index2}`).html()
+            });
+        });
+        listCWPA.push({
+            id: item,
+            cw: tempArr
+        });
+    });
+    return listCWPA;
+}
+
+function RankingFinal() {
+    let dataGui = {
+        cw_tc: TakeCWTC(),
+        cw_pa: TakeCWPA()
+    };
+
+    $.ajax({
+        url: "http://localhost:8000/ranking_final", 
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(dataGui),
+        success: function(response) {
+            hi = final(response,GetTablePA())
+            $("#final_result").removeClass("d-none")
+            genBangKQ(hi)
+        },
+        error: function(xhr, status, error) {
+            console.error("Lỗi:", error);
+        }
+    });
+}
+
+function GetTablePA()
+{
+    let kihieus = $('.kihieu').map((i, el) => $(el).text().trim()).get();
+    let truongs = $('.truong').map((i, el) => $(el).text().trim()).get();
+    let nganhs = $('.nganh').map((i, el) => $(el).text().trim()).get();
+    let resultObj = kihieus.map((_, i) => ({
+        kihieu: kihieus[i],
+        truong: truongs[i],
+        nganh: nganhs[i]
+      }));
+    return resultObj;      
+}
+
+function final(response_API, get_Tb_PA)
+{
+    const result = Object.keys(response_API).map(kihieu => {
+        const item = get_Tb_PA.find(d => d.kihieu === kihieu);
+        return {
+            ...item,
+            cw: response_API[kihieu]
+        };
+    });
+    return result
+}
+
+
+function genBangKQ(arr)
+{
+    $("#final_rs").empty();
+    arr.forEach(function(item, index) {
+        let bgColor = index === 0 ? 'style="background-color: #2fb344; padding: 7.2px;"' : 'style="padding: 7.2px;"';
+        var html = `<tr> 
+                        <td ${bgColor}>${item.truong}</td>
+                        <td ${bgColor}>${item.nganh}</td>
+                        <td ${bgColor}>${item.kihieu}</td>
+                        <td ${bgColor}>${item.cw.toFixed(4)}</td>
+                        <td ${bgColor}>${index + 1}</td>
+                    </tr>`;
+        $("#final_rs").append(html);
+    });
+    capNhatTienTrinh(100);
+}
+
+function checkCRPA()
+{
+    var arr = $('.cr_phuongan').map((i, el) => $(el).text().trim()).get();
+    if(arr.length < 1)
+    {
+        return false
+    }
+    const isValid = arr.every(item => {
+        const num = parseFloat(item);
+        return !isNaN(num) && num > 0 && num < 0.1 && item.trim() !== '';
+      });     
+    return isValid
+}
+
+function capNhatTienTrinh(phanTram) {
+    phanTram = Math.max(0, Math.min(phanTram, 100));
+
+    const $bar = $('#tientrinh');
+
+    $bar.animate({ width: phanTram + '%' }, 300, function () {
+        if (phanTram === 100) {
+            $bar.removeClass('bg-primary').addClass('bg-success');
+        } else {
+            $bar.removeClass('bg-success').addClass('bg-primary');
+        }
+    });
+}
+
