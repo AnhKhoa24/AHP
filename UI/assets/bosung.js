@@ -332,3 +332,66 @@ function capNhatTienTrinh(phanTram) {
     });
 }
 
+
+////các hàm get data save
+
+function getTieuChi() {
+    return $('#multiSelect').select2('data').map(({ id, text }) => ({ id, text }));
+}
+function getMaTranTieuChi() {
+    matrixLegth = $('#phap_su_trung_hoa').val();
+    var matrix = new Array(matrixLegth);
+    for (let i = 0; i < matrixLegth; i++) {
+        matrix[i] = new Array(matrixLegth);
+        for (let j = 0; j < matrixLegth; j++) {
+            matrix[i][j] = $(`#td_${i}_${j}`).val();
+        }
+    }
+    return matrix;
+}
+function getTableRankingTC() {
+    var listTC = $('#multiSelect').select2('data').map(({ id, text }) => ({ id, text }));
+    var listCWTC = [];
+    listTC.forEach(function (item, index) {
+        listCWTC.push({
+            id: item.id,
+            name: item.text,
+            cw: $(`#cw_${item.id}`).data('cw')
+        });
+    });
+    return listCWTC.sort((a, b) => b.cw - a.cw);
+}
+function getBangPhuongAn()
+{
+    let kihieus = $('.kihieu').map((i, el) => $(el).text().trim()).get();
+    let truongs = $('.truong').map((i, el) => $(el).text().trim()).get();
+    let nganhs = $('.nganh').map((i, el) => $(el).text().trim()).get();
+    let resultObj = kihieus.map((_, i) => ({
+        kihieu: kihieus[i],
+        truong: truongs[i],
+        nganh: nganhs[i]
+      }));
+    return resultObj;      
+}
+function getListMatranPhuongAn()
+{
+    let kihieus = $('.kihieu').map((i, el) => $(el).text().trim()).get();
+    var ListMT = [];
+    $('#multiSelect').val().forEach(function(item, index)
+    {
+        var matrix = new Array(matrixLegth);
+        for(let i = 0; i < kihieus.length; i++)
+        {
+            matrix[i] = new Array(matrixLegth);
+            for(let j = 0; j < kihieus.length; j ++)
+            {
+                matrix[i][j] = $(`#${item}_${i}_${j}`).val();
+            }
+        }
+        ListMT.push({
+            name: item,
+            matrix: matrix
+        });
+    });
+    return ListMT;
+}

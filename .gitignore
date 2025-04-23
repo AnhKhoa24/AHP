@@ -1,6 +1,7 @@
 # Bỏ qua file môi trường
 BackEnd/.env
 
+BE/.env
 # Bỏ qua thư mục __pycache__ ở mọi nơi
 __pycache__/
 
