@@ -7,10 +7,10 @@ collection = db["session_cache"]
 collection.create_index("expireAt", expireAfterSeconds=0)
 
 _id = upsert_cache(
-    _id="6808955051a53a8f4ffa3cb9",
+    _id="",
     data={"name": "OnlyName"},
     key="listsv",
-    expire_at=datetime.now(timezone.utc) + timedelta(seconds=30),
+    expire_at=datetime.now(timezone.utc) + timedelta(minutes=30),
     collection=collection
 )
 

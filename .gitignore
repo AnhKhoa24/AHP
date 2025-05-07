@@ -7,3 +7,4 @@ __pycache__/
 
 # Bỏ qua file biên dịch Python
 *.pyc
+AI_Sup

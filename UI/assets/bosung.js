@@ -10,30 +10,7 @@ function genRange(i, j) {
         sendMatrix(GomMatrix());
     }
 }
-// function nghichdao(text) {
-//     // Kiểm tra nếu input có dấu "/"
-//     if (text == '1') {
-//         return '1';
-//     }
-//     if (text.includes('/')) {
-//         let parts = text.split('/'); // Tách phần tử tử số và mẫu số
-//         let numerator = parts[0];   // Tử số
-//         let denominator = parts[1]; // Mẫu số
 
-//         // Kiểm tra nếu cả tử số và mẫu số đều là số và mẫu số khác 0
-//         if (!isNaN(numerator) && !isNaN(denominator) && denominator != 0) {
-//             // Nghịch đảo tử số và mẫu số
-//             return parseFloat(denominator / numerator); // Trả về nghịch đảo của phân số
-//         } else {
-//             return 'none';
-//         }
-//     } else if (!isNaN(text) && text != 0) {
-//         // Nếu không phải là phân số mà là một số nguyên, chuyển nó thành 1/x
-//         return `1/${text}`;
-//     } else {
-//         return 'none';
-//     }
-// }
 function GomMatrix() {
     matrixLegth = $('#phap_su_trung_hoa').val();
     var matrix = new Array(matrixLegth);
@@ -56,31 +33,38 @@ function validateMatrix(matrix) {
     }
     return true;
 }
+
+// Gửi ma trận tiêu chí
 function sendMatrix(matrix) {
     $.ajax({
         url: "http://localhost:8000/validate-matrix",
         type: "POST",
         contentType: "application/json",
-        data: JSON.stringify({ matrix: matrix }),
+        data: JSON.stringify({ cap: getTieuChi(),matrix: matrix, id: $("#session").val(), type: 'tc'}),
         success: function (response) {
-            // console.log("Kết quả:", response);
+
             if (response.cr > 0 && response.cr < 0.1) {
                 $('#value_cr').closest('div').removeClass('bg-danger').addClass('bg-success');
-                $('.c_choose').removeClass('d-none');
+                $('#c_choose').removeClass('d-none');
                 capNhatTienTrinh(20);
+                document.getElementById('c_choose').scrollIntoView({ behavior: 'smooth', block: 'start' });
             } else {
                 $('#value_cr').closest('div').removeClass('bg-success').addClass('bg-danger');
-                $('.c_choose').addClass('d-none');
+                $('#c_choose').addClass('d-none');
                 capNhatTienTrinh(0);
             }
             $('#value_cr').html('CR = ' + response.cr);
             genDanhGia(response.criteria_weights);
+            $("#session").val(response._id);
         },
         error: function (err) {
             console.log("Lỗi:", err);
         }
     });
 }
+
+
+
 function genDanhGia(arr_cw) {
     var tieuchis = $('#multiSelect').select2('data').map(({ id, text }) => ({ id, text }));
     var genlist = mergeObjectsAndSort(tieuchis, arr_cw);
@@ -110,19 +94,6 @@ function BoLuaChon(button) {
     // Xóa dòng tr chứa nút được click
     $(button).closest('tr').remove();
 }
-
-// $('.carousel-control-prev').on('click', function () {
-//     setTimeout(() => {
-//         let activeId = $('#ls_slides').find('.carousel-item.active').attr('id');
-//         console.log('Slide hiện tại có ID:', activeId);
-//     }, 600); // chờ hiệu ứng chạy xong
-// });
-// $('.carousel-control-next').on('click', function () {
-//     setTimeout(() => {
-//         let activeId = $('#ls_slides').find('.carousel-item.active').attr('id');
-//         console.log('Slide hiện tại có ID:', activeId);
-//     }, 600);
-// });
 
 function nhapmatran(id, i, j) {
     var value = $(`#${id}_${i}_${j}`).val();
@@ -169,12 +140,13 @@ function GetMatrix(matrixLegth, nametd) {
     return matrix;
 }
 
+// Gửi ma trận các phương án
 function sendEach(matrix, id_name) {
     $.ajax({
         url: "http://127.0.0.1:8000/validate-matrix",
         type: "POST",
         contentType: "application/json",
-        data: JSON.stringify({ matrix: matrix }),
+        data: JSON.stringify({ cap: getBangPhuongAn(),matrix: matrix, id: $("#session").val(), type: id_name}),
         success: function (response) {
             if (response.cr > 0 && response.cr < 0.1) {
                 $(`#cr_${id_name}`).html(`${response.cr}`);
@@ -253,7 +225,8 @@ function RankingFinal() {
         success: function(response) {
             hi = final(response,GetTablePA())
             $("#final_result").removeClass("d-none")
-            genBangKQ(hi)
+            genBangKQ(hi);
+            document.getElementById('final_result').scrollIntoView({ behavior: 'smooth', block: 'start' });
         },
         error: function(xhr, status, error) {
             console.error("Lỗi:", error);
@@ -289,6 +262,7 @@ function final(response_API, get_Tb_PA)
 
 function genBangKQ(arr)
 {
+    console.log(arr);
     $("#final_rs").empty();
     arr.forEach(function(item, index) {
         let bgColor = index === 0 ? 'style="background-color: #2fb344; padding: 7.2px;"' : 'style="padding: 7.2px;"';
@@ -301,8 +275,10 @@ function genBangKQ(arr)
                     </tr>`;
         $("#final_rs").append(html);
     });
+    genPieChart(arr)
     capNhatTienTrinh(100);
 }
+
 
 function checkCRPA()
 {
@@ -394,4 +370,78 @@ function getListMatranPhuongAn()
         });
     });
     return ListMT;
+}
+
+
+
+// Hàm tạo bảng biểu đồ tròn
+let pieChartInstance = null; // giữ biểu đồ hiện tại
+
+function genPieChart(arr) {
+  const randomColor = () =>
+    `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
+
+  const getColors = (n) => Array.from({ length: n }, () => randomColor());
+
+  const labels = arr.map(item => item.kihieu);
+  const values = arr.map(item => Number(item.cw.toFixed(4)));
+  const colors = getColors(arr.length);
+
+  const data = {
+    labels: labels,
+    datasets: [{
+      data: values,
+      backgroundColor: colors,
+      borderWidth: 2
+    }]
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          color: '#FFFFFF'
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: function (context) {
+            const label = context.label || '';
+            const value = context.raw || 0;
+            return `${label}: ${value.toFixed(4)}`;
+          }
+        }
+      },
+      datalabels: {
+        color: '#000',
+        font: {
+          weight: 'bold',
+          size: 14
+        },
+        formatter: (value, ctx) => {
+          return ctx.chart.data.labels[ctx.dataIndex];
+        }
+      }
+    }
+  };
+
+  const ctx = document.getElementById('myPieChart').getContext('2d');
+
+  // Nếu đã tồn tại biểu đồ → update
+  if (pieChartInstance) {
+    pieChartInstance.data = data;
+    pieChartInstance.options = options;
+    pieChartInstance.update();
+  } else {
+    // Chưa có thì khởi tạo lần đầu
+    pieChartInstance = new Chart(ctx, {
+      type: 'pie',
+      data: data,
+      options: options,
+      plugins: [ChartDataLabels]
+    });
+  }
 }

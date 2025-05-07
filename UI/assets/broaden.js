@@ -8,9 +8,9 @@ export function TaoBang(arr) {
     var tr_html = `<th></th>`;
     $('#tb_matrix').empty();
     for (let i = 0; i < arr.length; i++) {
-        tr_html += `<th>${arr[i]}</th>`;
+        tr_html += `<th style="min-width: 150px;">${arr[i]}</th>`;
 
-        var each_tr = `<td style="padding: 6px;" class="border-bottom border-light fw-bold table-primary text-center" style="width: 20%">${arr[i]}</td>`;
+        var each_tr = `<td style="padding: 6px; min-width: 150px;" class="border-bottom border-light fw-bold table-primary text-center">${arr[i]}</td>`;
         for (let j = 0; j < arr.length; j++) {
             if (i == j) {
                 each_tr += ` <td><input type="text" value=1 class="form-control text-center rounded-0 bg-warning" id="td_${i}_${j}" readonly></td>`
@@ -73,9 +73,9 @@ export function TaoCauHoi(arr) {
 
 export function genChoices() {
     var html = `<tr>
-    <td class="pt-1 pb-1 text-center truong" style="width: 45%">` + $('#select_school option:selected').text() + `</td>
-    <td class="pt-1 pb-1 text-center nganh" style="width: 25%">` + $('#select_major option:selected').text() + `</td>
-    <td class="pt-1 pb-1 text-center kihieu" style="width: 20%">` + $('#select_school').val() + '-' + $('#select_major').val() + `</td>
+    <td class="pt-1 pb-1 text-center truong" style="width: 45%">` + $('#chon_truong option:selected').text() + `</td>
+    <td class="pt-1 pb-1 text-center nganh" style="width: 25%">` + $('#chon_nganh option:selected').text() + `</td>
+    <td class="pt-1 pb-1 text-center kihieu" style="width: 20%">` + $('#chon_truong').val() + '-' + vietTat($('#chon_nganh option:selected').text()) + `</td>
     <td class="text-center align-middle" style="width: 10%">
     <div class="d-flex justify-content-center pt-1 pb-1">
         <button onclick="BoLuaChon(this)" class="btn btn-danger btn-sm rounded-circle d-flex align-items-center justify-content-center"
@@ -87,6 +87,13 @@ export function genChoices() {
 
 </tr>`;
     $('#tb_school').append(html);
+}
+function vietTat(chuoi) {
+    return chuoi
+        .split(/\s+/)                      
+        .filter(tu => tu.length > 0)       
+        .map(tu => tu[0].toUpperCase())    
+        .join('');                        
 }
 
 function BangPhuongAn(tieuchi_text, tieuchi_id) {
