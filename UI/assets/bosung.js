@@ -1,4 +1,4 @@
-
+const url = "https://f218-116-106-193-106.ngrok-free.app/";
 function genRange(i, j) {
     let myArray = ['1/9', '1/8', '1/7', '1/6', '1/5', '1/4', '1/3', '1/2', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
     var valueRange = $(`#range_${i}_${j}`).val();
@@ -37,7 +37,7 @@ function validateMatrix(matrix) {
 // Gửi ma trận tiêu chí
 function sendMatrix(matrix) {
     $.ajax({
-        url: "http://localhost:8000/validate-matrix",
+        url: url+"validate-matrix",
         type: "POST",
         contentType: "application/json",
         data: JSON.stringify({ cap: getTieuChi(),matrix: matrix, id: $("#session").val(), type: 'tc'}),
@@ -143,7 +143,7 @@ function GetMatrix(matrixLegth, nametd) {
 // Gửi ma trận các phương án
 function sendEach(matrix, id_name) {
     $.ajax({
-        url: "http://127.0.0.1:8000/validate-matrix",
+        url: url+"validate-matrix",
         type: "POST",
         contentType: "application/json",
         data: JSON.stringify({ cap: getBangPhuongAn(),matrix: matrix, id: $("#session").val(), type: id_name}),
@@ -218,7 +218,7 @@ function RankingFinal() {
     };
 
     $.ajax({
-        url: "http://localhost:8000/ranking_final", 
+        url: url+"ranking_final", 
         type: "POST",
         contentType: "application/json",
         data: JSON.stringify(dataGui),

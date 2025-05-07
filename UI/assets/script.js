@@ -3,8 +3,6 @@ import { TaoCauHoi } from './broaden.js';
 import { genChoices } from './broaden.js';
 import { TaoBangPhuongAn } from './broaden.js';
 import { TaoBangTamLuuAo } from './broaden.js';
-
-
 $(document).ready(function () {
     $('#multiSelect').select2({
         width: '100%',
@@ -19,7 +17,7 @@ $(document).ready(function () {
         placeholder: "Chọn ngành học",
         width: '100%',
         ajax: {
-            url: "http://localhost:8000/tim_nganh", 
+            url: url+"tim_nganh", 
             dataType: 'json',
             contentType: "application/json",
             type: "POST",
@@ -46,7 +44,7 @@ $(document).ready(function () {
         placeholder: "Chọn thành phố / tỉnh",
         width: '100%',
         ajax: {
-            url: "http://localhost:8000/tim_tp",  // đường dẫn đến API
+            url: url+"tim_tp",  // đường dẫn đến API
             dataType: 'json',
             contentType: "application/json",
             type: "POST",
@@ -74,7 +72,7 @@ $(document).ready(function () {
         placeholder: "Chọn trường",
         width: '100%',
         ajax: {
-            url: "http://localhost:8000/tim_truong", 
+            url: url+"tim_truong", 
             dataType: 'json',
             contentType: "application/json",
             type: "POST",
@@ -99,40 +97,12 @@ $(document).ready(function () {
             cache: true
         },
     });
-    $('#select_school').select2({
-        placeholder: "Chọn trường",
-        width: '100%',
-        allowClear: true,
-        ajax: {
-            url: "http://localhost:8000/getUni",  // đường dẫn đến API
-            dataType: 'json',
-            contentType: "application/json",
-            type: "POST",
-            delay: 250,
-            data: function (params) {
-                return JSON.stringify({
-                    keyword: params.term ?? '' // Gửi đúng JSON format
-                });
-            },
-            processResults: function (data) {
-                return {
-                    results: data.map(function (item) {
-                        return {
-                            id: item.id,
-                            text: item.name
-                        };
-                    })
-                };
-            },
-            cache: true
-        },
-    });
     $('#select_major').select2({
         width: '100%',
         placeholder: "Chọn ngành",
         allowClear: true,
         ajax: {
-            url: "http://localhost:8000/getMajor",
+            url: url+"getMajor",
             dataType: 'json',
             contentType: "application/json",
             type: "POST",
@@ -219,8 +189,7 @@ $("#tao_mt_phuongan").on('click', function () {
     }
     else{
         
-    }
-    
+    }   
 });
 
 
