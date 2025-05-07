@@ -8,9 +8,9 @@ export function TaoBang(arr) {
     var tr_html = `<th></th>`;
     $('#tb_matrix').empty();
     for (let i = 0; i < arr.length; i++) {
-        tr_html += `<th>${arr[i]}</th>`;
+        tr_html += `<th style="min-width: 150px;">${arr[i]}</th>`;
 
-        var each_tr = `<td style="padding: 6px;" class="border-bottom border-light fw-bold table-primary text-center" style="width: 20%">${arr[i]}</td>`;
+        var each_tr = `<td style="padding: 6px; min-width: 150px;" class="border-bottom border-light fw-bold table-primary text-center">${arr[i]}</td>`;
         for (let j = 0; j < arr.length; j++) {
             if (i == j) {
                 each_tr += ` <td><input type="text" value=1 class="form-control text-center rounded-0 bg-warning" id="td_${i}_${j}" readonly></td>`
@@ -29,8 +29,7 @@ export function TaoBang(arr) {
 
 function TaoBangDanhGia(arr) {
     $('#tb_rank').empty();
-    arr.forEach(function (item, index)
-    {
+    arr.forEach(function (item, index) {
         var html = `<tr><td style="padding: 7.2px;">${item}</td>
                         <td></td>
                         <td></td>
@@ -74,9 +73,9 @@ export function TaoCauHoi(arr) {
 
 export function genChoices() {
     var html = `<tr>
-    <td class="pt-1 pb-1 text-center truong" style="width: 45%">` + $('#select_school option:selected').text() + `</td>
-    <td class="pt-1 pb-1 text-center nganh" style="width: 25%">` + $('#select_major option:selected').text() + `</td>
-    <td class="pt-1 pb-1 text-center kihieu" style="width: 20%">` + $('#select_school').val() + '-' + $('#select_major').val() + `</td>
+    <td class="pt-1 pb-1 text-center truong" style="width: 45%">` + $('#chon_truong option:selected').text() + `</td>
+    <td class="pt-1 pb-1 text-center nganh" style="width: 25%">` + $('#chon_nganh option:selected').text() + `</td>
+    <td class="pt-1 pb-1 text-center kihieu" style="width: 20%">` + $('#chon_truong').val() + '-' + vietTat($('#chon_nganh option:selected').text()) + `</td>
     <td class="text-center align-middle" style="width: 10%">
     <div class="d-flex justify-content-center pt-1 pb-1">
         <button onclick="BoLuaChon(this)" class="btn btn-danger btn-sm rounded-circle d-flex align-items-center justify-content-center"
@@ -89,19 +88,26 @@ export function genChoices() {
 </tr>`;
     $('#tb_school').append(html);
 }
+function vietTat(chuoi) {
+    return chuoi
+        .split(/\s+/)                      
+        .filter(tu => tu.length > 0)       
+        .map(tu => tu[0].toUpperCase())    
+        .join('');                        
+}
 
 function BangPhuongAn(tieuchi_text, tieuchi_id) {
     let danhSach = $('.kihieu').map((i, el) => $(el).text().trim()).get();
     var tHead = `<thead class="table-primary"><tr><th>${tieuchi_text}</th>`;
-    for(let i = 0; i < danhSach.length; i++){
+    for (let i = 0; i < danhSach.length; i++) {
         tHead += `<th>${danhSach[i]}</th>`;
     };
     tHead += `</tr></thead>`;
 
     var tBody = `<tbody>`;
-    for(let i = 0; i < danhSach.length; i++){
+    for (let i = 0; i < danhSach.length; i++) {
         let each_tr = `<tr><td class="table-primary text-center border-bottom border-light fw-bold" style="width:30%">${danhSach[i]}</td>`;
-        for(let j = 0; j < danhSach.length; j++){
+        for (let j = 0; j < danhSach.length; j++) {
             if (i == j) {
                 each_tr += ` <td><input type="text" value=1 class="form-control text-center rounded-0 bg-warning" id="${tieuchi_id}_${i}_${j}" readonly></td>`
             }
@@ -116,23 +122,21 @@ function BangPhuongAn(tieuchi_text, tieuchi_id) {
 
     tBody += `<tr><td style="padding: 5px;" colspan="${danhSach.length}">CR:</td><td class="cr_phuongan" id="cr_${tieuchi_id}" style="padding: 5px;"></td></tr></tbody>`;
 
-    return `<div class="col-md-6 mb-2"><table class="table table-bordered text-center">`+tHead + tBody + `</table></div>`;
+    return `<div class="col-md-6 mb-2"><table class="table table-bordered text-center">` + tHead + tBody + `</table></div>`;
 }
-export function TaoBangPhuongAn()
-{
+export function TaoBangPhuongAn() {
     var listTC = $('#multiSelect').select2('data')
     $("#list_bang_phuong_an").empty();
-    listTC.forEach(function(item, index) {
+    listTC.forEach(function (item, index) {
         $("#list_bang_phuong_an").append(BangPhuongAn(item.text, item.id));
     });
-} 
+}
 
 
-export function TaoBangTamLuuAo()
-{
+export function TaoBangTamLuuAo() {
     var tieuchis = $('#multiSelect').select2('data').map(({ id, text }) => ({ id, text }));
     var html_TH = `<tr><th></th>`;
-    tieuchis.forEach(function(item, index) {
+    tieuchis.forEach(function (item, index) {
         html_TH += `<th id="thCW_${item.id}">${item.text}</th>`;
     });
     html_TH += `</tr>`;
@@ -140,12 +144,30 @@ export function TaoBangTamLuuAo()
     let danhSach = $('.kihieu').map((i, el) => $(el).text().trim()).get();
 
     $("#cw_body").empty();
-    danhSach.forEach(function(item, index) {
+    danhSach.forEach(function (item, index) {
         var tr_temp = `<tr><td>${item}</td>`;
-        tieuchis.forEach(function(item2, index2) {
+        tieuchis.forEach(function (item2, index2) {
             tr_temp += `<td id="cw_${item2.id}_${index}"></td>`;
         });
         tr_temp += `</tr>`;
         $("#cw_body").append(tr_temp);
     });
+}
+
+
+////các hàm get data save
+
+function getTieuChi() {
+    return $('#multiSelect').select2('data').map(({ id, text }) => ({ id, text }));
+}
+function getMaTranTieuChi() {
+    matrixLegth = $('#phap_su_trung_hoa').val();
+    var matrix = new Array(matrixLegth);
+    for (let i = 0; i < matrixLegth; i++) {
+        matrix[i] = new Array(matrixLegth);
+        for (let j = 0; j < matrixLegth; j++) {
+            matrix[i][j] = $(`#td_${i}_${j}`).val();
+        }
+    }
+    return matrix;
 }

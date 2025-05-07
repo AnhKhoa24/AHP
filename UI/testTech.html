@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Scroll demo</title>
+  <style>
+    section { height: 800px; border-bottom: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+
+  <button id="btnScroll">Đi tới mục 3</button>
+
+  <section id="sec1">Mục 1</section>
+  <section id="sec2">Mục 2</section>
+  <section id="sec3">Mục 3</section>
+  <section id="sec4">Mục 4</section>
+
+  <script>
+    document
+      .getElementById('btnScroll')
+      .addEventListener('click', function() {
+        // Phương pháp 1: scrollIntoView
+        document
+          .getElementById('sec3')
+          .scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        // Phương pháp 2: window.scrollTo
+        // const top = document.getElementById('sec3').offsetTop;
+        // window.scrollTo({ top, behavior: 'smooth' });
+      });
+  </script>
+
+</body>
+</html>

@@ -81,4 +81,13 @@ h2 {
     display: none;
 }
 
+/* custom thanh header */
+#header {
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
 
+#header.scrolled {
+    background-color: #1c5d9f !important;
+    /* hoặc màu khác */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
