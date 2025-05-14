@@ -1,10 +1,14 @@
 import requests
+import os
 import json
+from dotenv import load_dotenv
+load_dotenv() 
+API_KEY = os.getenv("API_KEY")
 
 url = "https://api.groq.com/openai/v1/chat/completions"
 headers = {
     "Content-Type": "application/json",
-    "Authorization": "Bearer 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"
+    "Authorization": "Bearer " + API_KEY,
 }
 
 # === HÀM TẠO PROMPT DYNAMIC CHO AHP n x n ===

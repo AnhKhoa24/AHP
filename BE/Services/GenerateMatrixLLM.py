@@ -1,6 +1,6 @@
 # from groq import Groq
 # import time
-# client = Groq(api_key="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")
+# client = Groq(api_key="")
 # models = [
 #     "deepseek-r1-distill-llama-70b",
 #     "llama3-70b-8192",
