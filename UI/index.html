@@ -94,7 +94,7 @@
                 </table>
             </div>
             <div class="col-md">
-                <table class="table table-bordered text-center d-none" id="tb_rank_head">
+                <table class="table table-bordered text-center divhide" id="tb_rank_head">
                     <thead class="table-primary">
                         <tr>
                             <th style="width: 45%">Tiêu chí</th>
@@ -113,12 +113,16 @@
 
 
     <!-- Thanh câu hỏi -->
-    <div class="container mt-2 mb-2 d-none so_sanh_cap">
+    <div class="container mt-2 mb-3 divhide so_sanh_cap">
         <span class="text-light">Dựa vào ý kiến của chuyên gia so sánh, đánh giá mức độ quan trọng của các
             tiêu chí</span>
+            <button id="generate_matrix_btn" class="btn btn-outline-info ms-3 generate-ai-btn">
+                <i class="bi bi-stars me-1"></i> Gợi ý
+            </button>
+            
     </div>
 
-    <div class="container d-none so_sanh_cap" id="so_sanh_cap">
+    <div class="container divhide so_sanh_cap" id="so_sanh_cap">
         <div class="row">
             <div class="col-10">
                 <div id="carouselExampleCaptions" class="rounded-3 border bg_slides carousel slide shadow-lg"
@@ -147,7 +151,7 @@
 
 
     <!-- Bộ lọc phương án -->
-    <div class="container mt-5 mb-5 d-none" id="c_choose">
+    <div class="container mt-5 mb-5 divhide" id="c_choose">
         <div class="row mb-3">
             <span class="text-light fs-4">2. Chọn danh sách phương án</span>
         </div>

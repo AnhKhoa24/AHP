@@ -4,6 +4,8 @@ import { genChoices } from './broaden.js';
 import { TaoBangPhuongAn } from './broaden.js';
 import { TaoBangTamLuuAo } from './broaden.js';
 $(document).ready(function () {
+
+
     $('#multiSelect').select2({
         width: '100%',
         placeholder: "Chọn các tiêu chí",
@@ -159,9 +161,7 @@ $('#multiSelect').on('select2:select', function (e) {
     TaoBang(selectedTexts);
     TaoCauHoi(selectedTexts);
     if(selectedTexts.length > 0) {
-        $("#tb_rank_head").removeClass('d-none');
-    }else{
-        $("#tb_rank_head").addClass('d-none');
+        $('#tb_rank_head').addClass('visible');
     }
 });
 
@@ -170,10 +170,8 @@ $('#multiSelect').on('select2:unselect ', function (e) {
     var selectedTexts = $('#multiSelect').select2('data').map(item => item.text);
     TaoBang(selectedTexts);
     TaoCauHoi(selectedTexts);
-    if(selectedTexts.length > 0) {
-        $("#tb_rank_head").removeClass('d-none');
-    }else{
-        $("#tb_rank_head").addClass('d-none');
+    if(selectedTexts.length < 1) {
+        $("#tb_rank_head").removeClass('visible');
     }
 });
 

@@ -91,3 +91,43 @@ h2 {
     /* hoặc màu khác */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
+
+
+
+/* Hiệu ứng ẩn mở */
+.divhide {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    display: block; /* luôn block để tránh bị gãy layout */
+    height: 0;
+    overflow: hidden;
+}
+
+.divhide.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    height: auto; /* hoặc đặt height cụ thể nếu cần */
+    overflow: visible;
+}
+
+
+/* Bùa từ chatGPT */
+.generate-ai-btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 2px solid #00ffe7;
+    box-shadow: 0 0 8px rgba(0, 255, 231, 0.5);
+    color: #00ffe7;
+    background-color: transparent;
+}
+
+.generate-ai-btn:hover {
+    box-shadow: 0 0 15px rgba(0, 255, 231, 0.9);
+    background-color: rgba(0, 255, 231, 0.1);
+    color: #ffffff;
+}
+

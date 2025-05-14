@@ -1,4 +1,4 @@
-const url = "https://f218-116-106-193-106.ngrok-free.app/";
+const url = "http://localhost:8000/";
 function genRange(i, j) {
     let myArray = ['1/9', '1/8', '1/7', '1/6', '1/5', '1/4', '1/3', '1/2', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
     var valueRange = $(`#range_${i}_${j}`).val();
@@ -45,12 +45,12 @@ function sendMatrix(matrix) {
 
             if (response.cr > 0 && response.cr < 0.1) {
                 $('#value_cr').closest('div').removeClass('bg-danger').addClass('bg-success');
-                $('#c_choose').removeClass('d-none');
+                $('#c_choose').addClass('visible');
                 capNhatTienTrinh(20);
                 document.getElementById('c_choose').scrollIntoView({ behavior: 'smooth', block: 'start' });
             } else {
                 $('#value_cr').closest('div').removeClass('bg-success').addClass('bg-danger');
-                $('#c_choose').addClass('d-none');
+                $('#c_choose').removeClass('visible');
                 capNhatTienTrinh(0);
             }
             $('#value_cr').html('CR = ' + response.cr);
@@ -62,8 +62,6 @@ function sendMatrix(matrix) {
         }
     });
 }
-
-
 
 function genDanhGia(arr_cw) {
     var tieuchis = $('#multiSelect').select2('data').map(({ id, text }) => ({ id, text }));
@@ -88,7 +86,6 @@ function mergeObjectsAndSort(keys, values) {
     merged.sort((a, b) => b.cw - a.cw);
     return merged;
 }
-
 
 function BoLuaChon(button) {
     // Xóa dòng tr chứa nút được click
@@ -162,7 +159,6 @@ function sendEach(matrix, id_name) {
         }
     });
 }
-
 
 function SaveBangAo(id_name, arr) {
     console.log(arr);
