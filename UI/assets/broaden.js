@@ -65,9 +65,9 @@ export function TaoCauHoi(arr) {
 
     });
     if (arr.length > 2) {
-        $('.so_sanh_cap').removeClass('d-none');
+        $('.so_sanh_cap').addClass('visible');
     } else {
-        $('.so_sanh_cap').addClass('d-none');
+        $('.so_sanh_cap').removeClass('visible');
     }
 }
 

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Smooth Update</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Cách 2: transition background */
+        .fade-value {
+            transition: background-color 0.3s ease;
+        }
+        .fade-value.changed {
+            background-color: yellow;
+        }
+        #c_choose {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    display: block; /* luôn block để tránh bị gãy layout */
+    height: 0;
+    overflow: hidden;
+}
+
+#c_choose.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    height: auto; /* hoặc đặt height cụ thể nếu cần */
+    overflow: visible;
+}
+
+    </style>
+</head>
+<body>
+    <h2>Cập nhật giá trị input với hiệu ứng</h2>
+
+    <input id="HIHI" type="text" value="0" class="fade-value" style="width: 100px; font-size: 20px;" />
+
+    <br><br>
+    <button onclick="fadeUpdate()">Cách 1: fadeOut/fadeIn</button>
+    <button onclick="highlightUpdate()">Cách 2: highlight bằng CSS</button>
+    <button onclick="animateUpdate()">Cách 3: animate số mượt</button>
+    <div id="c_choose" class="container mt-5 mb-5">
+        Nội dung cần ẩn/hiện
+    </div>
+    
+    <button onclick="$('#c_choose').toggleClass('visible')">Toggle Hiện/Ẩn</button>
+    
+    <script>
+        // Cách 1: fadeOut -> val -> fadeIn
+        function fadeUpdate() {
+            $("#HIHI").fadeOut(500, function () {
+                $(this).val(133).fadeIn(500);
+            });
+        }
+
+        // Cách 2: dùng CSS transition + class
+        function highlightUpdate() {
+            const el = $("#HIHI");
+            el.addClass("changed");
+            el.val(133);
+            setTimeout(() => el.removeClass("changed"), 300);
+        }
+
+        // Cách 3: animate tăng số từ hiện tại -> 133
+        function animateUpdate() {
+            const el = $("#HIHI");
+            const current = parseFloat(el.val()) || 0;
+            $({val: current}).animate({val: 133}, {
+                duration: 600,
+                step: function (now) {
+                    el.val(Math.floor(now));
+                }
+            });
+        }
+    </script>
+</body>
+</html>
