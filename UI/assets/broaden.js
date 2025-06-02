@@ -33,6 +33,8 @@ function TaoBangDanhGia(arr) {
         var html = `<tr><td style="padding: 7.2px;">${item}</td>
                         <td></td>
                         <td></td>
+                        <td></td>
+                        <td></td>
                         </tr>`;
         $('#tb_rank').append(html);
     });
@@ -170,4 +172,49 @@ function getMaTranTieuChi() {
         }
     }
     return matrix;
+}
+
+
+
+///Gen bảng từ excel 
+export function genBangExcel(arr)
+{
+    for(let i = 0; i < arr.length; i++){
+        for(let j = 0; j < arr.length; j++)
+        {
+            $(`#td_${i}_${j}`).val(arr[i][j])
+        }
+    }
+}
+export function GenCauHoi(arr) {
+    $('#ls_slides').empty();
+    $('#value_cr').html('CR:');
+    var html = ``;
+    for (let i = 0; i < arr.length; i++) {
+        for (let j = i + 1; j < arr.length; j++) {
+            // console.log(`So sánh: ${i} với ${j}`);
+            html += `<div class="carousel-item ${i + j == 1 ? 'active' : ""}" id="slide_${i}_${j}">
+                            <div
+                                class="container input-range-container d-flex flex-column justify-content-center align-items-center p-4">
+                                <label for="range1" class="form-label text-center w-100 text-light">${i}.${j}) So sánh ${arr[i]} với ${arr[j]}</label>
+                                <div class="mb-3 d-flex align-items-center">
+                                    <input type="range" id="range_${i}_${j}" oninput="genRange(${i}, ${j})" class="form-range" min="0" max="16" step="1" style="width: 200px">
+                                    <span id="value_${i}_${j}" class="ms-5 text-light">${arr[i][j]}</span>
+                                </div>
+                            </div>
+                        </div>`;
+        }
+    }
+    $('#ls_slides').html(html);
+    $('#carouselExampleCaptions').off('slid.bs.carousel').on('slid.bs.carousel', function () {
+        let activeId = $(this).find('.carousel-item.active').attr('id'); // ví dụ: slide_0_2
+        let tdId = activeId.replace('slide', 'td'); // Kết quả: td_0_2
+        console.log('Tìm thấy phần tử:', tdId);
+
+    });
+    if (arr.length > 2) {
+        $('.so_sanh_cap').addClass('visible');
+    } else {
+        $('.so_sanh_cap').removeClass('visible');
+    }
 }
