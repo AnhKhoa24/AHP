@@ -55,7 +55,7 @@ def calculate_CR(matrix):
 
     CR = CI / RI_cs[n-1]
 
-    return CR, arr_avg
+    return CR, arr_avg, CI, lamda_max, arr_CV, arr_WSV
 
 # matrix = np.array([
 #     [1, 1/2, 3, 1/2, 1/3, 1/3, 1/4],

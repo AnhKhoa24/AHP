@@ -7,7 +7,8 @@ function genRange(i, j) {
     $(`#td_${j}_${i}`).val(invertFraction(myArray[valueRange]));
     if (validateMatrix(GomMatrix())) {
         console.log("call api");
-        sendMatrix(GomMatrix());
+        var tieuchis = $('#multiSelect').select2('data').map(({ id, text }) => ({ id, text }));
+        sendMatrix(GomMatrix(), tieuchis);
     }
 }
 
@@ -35,12 +36,12 @@ function validateMatrix(matrix) {
 }
 
 // Gửi ma trận tiêu chí
-function sendMatrix(matrix) {
+function sendMatrix(matrix, tieuchis) {
     $.ajax({
-        url: url+"validate-matrix",
+        url: url + "validate-matrix",
         type: "POST",
         contentType: "application/json",
-        data: JSON.stringify({ cap: getTieuChi(),matrix: matrix, id: $("#session").val(), type: 'tc'}),
+        data: JSON.stringify({ cap: getTieuChi(), matrix: matrix, id: $("#session").val(), type: 'tc' }),
         success: function (response) {
 
             if (response.cr > 0 && response.cr < 0.1) {
@@ -54,7 +55,10 @@ function sendMatrix(matrix) {
                 capNhatTienTrinh(0);
             }
             $('#value_cr').html('CR = ' + response.cr);
-            genDanhGia(response.criteria_weights);
+            $('#lamda').html('Lamda_max = ' + response.lamda);
+            $('#value_ci').html('CI = ' + response.CI);
+
+            genDanhGia(response.criteria_weights, response.consistency_vector, response.sumweight, tieuchis);
             $("#session").val(response._id);
         },
         error: function (err) {
@@ -63,29 +67,41 @@ function sendMatrix(matrix) {
     });
 }
 
-function genDanhGia(arr_cw) {
-    var tieuchis = $('#multiSelect').select2('data').map(({ id, text }) => ({ id, text }));
-    var genlist = mergeObjectsAndSort(tieuchis, arr_cw);
-    DoiDG(genlist);
+function genDanhGia(arr_cw, arr_cv, arr_sw, tieuchis) {
+    const merged = arr_cw.map((_, i) => ({
+        id: tieuchis[i].id,
+        text: tieuchis[i].text,
+        cw: arr_cw[i],
+        cv: arr_cv[i],
+        sw: arr_sw[i]
+    }));
+    var sorted = merged.sort((a, b) => b.cw - a.cw);
+    console.log(sorted);
+
+    // var genlist = mergeObjectsAndSort(tieuchis, arr_cw);
+    DoiDG(sorted);
 }
 function DoiDG(arr) {
     $('#tb_rank').empty();
     arr.forEach(function (item, index) {
         var html = `<tr><td style="padding: 7.2px;">${item.text}</td>
                         <td style="padding: 7.2px;" data-cw= "${item.cw}" id="cw_${item.id}">${item.cw.toFixed(4)}</td>
+                        <td style="padding: 7.2px;" data-cv= "${item.cv}" id="cv_${item.id}">${item.cw.toFixed(4)}</td>
+                        <td style="padding: 7.2px;" data-sw= "${item.sw}" id="sw_${item.id}">${item.cw.toFixed(4)}</td>
                         <td style="padding: 7.2px;">${index + 1}</td>
                         </tr>`;
         $('#tb_rank').append(html);
     });
 }
-function mergeObjectsAndSort(keys, values) {
-    const merged = keys.map((item, index) => ({
-        ...item,
-        cw: values[index]
-    }));
-    merged.sort((a, b) => b.cw - a.cw);
-    return merged;
-}
+
+// function mergeObjectsAndSort(keys, values) {
+//     const merged = keys.map((item, index) => ({
+//         ...item,
+//         cw: values[index]
+//     }));
+//     merged.sort((a, b) => b.cw - a.cw);
+//     return merged;
+// }
 
 function BoLuaChon(button) {
     // Xóa dòng tr chứa nút được click
@@ -140,10 +156,10 @@ function GetMatrix(matrixLegth, nametd) {
 // Gửi ma trận các phương án
 function sendEach(matrix, id_name) {
     $.ajax({
-        url: url+"validate-matrix",
+        url: url + "validate-matrix",
         type: "POST",
         contentType: "application/json",
-        data: JSON.stringify({ cap: getBangPhuongAn(),matrix: matrix, id: $("#session").val(), type: id_name}),
+        data: JSON.stringify({ cap: getBangPhuongAn(), matrix: matrix, id: $("#session").val(), type: id_name }),
         success: function (response) {
             if (response.cr > 0 && response.cr < 0.1) {
                 $(`#cr_${id_name}`).html(`${response.cr}`);
@@ -166,11 +182,9 @@ function SaveBangAo(id_name, arr) {
         $(`#cw_${id_name}_${index}`).html(item);
         console.log(`#cw_${id_name}_${index}`);
     });
-    if(checkCRPA())
-    {
+    if (checkCRPA()) {
         RankingFinal()
-    }else
-    {
+    } else {
         $("#final_result").addClass("d-none")
     }
 }
@@ -195,8 +209,8 @@ function TakeCWPA() {
         let tempArr = [];
         danhSach.forEach(function (item2, index2) {
             tempArr.push({
-                id: item2,     
-                cw:$(`#cw_${item}_${index2}`).html()
+                id: item2,
+                cw: $(`#cw_${item}_${index2}`).html()
             });
         });
         listCWPA.push({
@@ -214,24 +228,23 @@ function RankingFinal() {
     };
 
     $.ajax({
-        url: url+"ranking_final", 
+        url: url + "ranking_final",
         type: "POST",
         contentType: "application/json",
         data: JSON.stringify(dataGui),
-        success: function(response) {
-            hi = final(response,GetTablePA())
+        success: function (response) {
+            hi = final(response, GetTablePA())
             $("#final_result").removeClass("d-none")
             genBangKQ(hi);
             document.getElementById('final_result').scrollIntoView({ behavior: 'smooth', block: 'start' });
         },
-        error: function(xhr, status, error) {
+        error: function (xhr, status, error) {
             console.error("Lỗi:", error);
         }
     });
 }
 
-function GetTablePA()
-{
+function GetTablePA() {
     let kihieus = $('.kihieu').map((i, el) => $(el).text().trim()).get();
     let truongs = $('.truong').map((i, el) => $(el).text().trim()).get();
     let nganhs = $('.nganh').map((i, el) => $(el).text().trim()).get();
@@ -239,12 +252,11 @@ function GetTablePA()
         kihieu: kihieus[i],
         truong: truongs[i],
         nganh: nganhs[i]
-      }));
-    return resultObj;      
+    }));
+    return resultObj;
 }
 
-function final(response_API, get_Tb_PA)
-{
+function final(response_API, get_Tb_PA) {
     const result = Object.keys(response_API).map(kihieu => {
         const item = get_Tb_PA.find(d => d.kihieu === kihieu);
         return {
@@ -256,11 +268,10 @@ function final(response_API, get_Tb_PA)
 }
 
 
-function genBangKQ(arr)
-{
+function genBangKQ(arr) {
     console.log(arr);
     $("#final_rs").empty();
-    arr.forEach(function(item, index) {
+    arr.forEach(function (item, index) {
         let bgColor = index === 0 ? 'style="background-color: #2fb344; padding: 7.2px;"' : 'style="padding: 7.2px;"';
         var html = `<tr> 
                         <td ${bgColor}>${item.truong}</td>
@@ -276,17 +287,15 @@ function genBangKQ(arr)
 }
 
 
-function checkCRPA()
-{
+function checkCRPA() {
     var arr = $('.cr_phuongan').map((i, el) => $(el).text().trim()).get();
-    if(arr.length < 1)
-    {
+    if (arr.length < 1) {
         return false
     }
     const isValid = arr.every(item => {
         const num = parseFloat(item);
         return !isNaN(num) && num > 0 && num < 0.1 && item.trim() !== '';
-      });     
+    });
     return isValid
 }
 
@@ -333,8 +342,7 @@ function getTableRankingTC() {
     });
     return listCWTC.sort((a, b) => b.cw - a.cw);
 }
-function getBangPhuongAn()
-{
+function getBangPhuongAn() {
     let kihieus = $('.kihieu').map((i, el) => $(el).text().trim()).get();
     let truongs = $('.truong').map((i, el) => $(el).text().trim()).get();
     let nganhs = $('.nganh').map((i, el) => $(el).text().trim()).get();
@@ -342,21 +350,17 @@ function getBangPhuongAn()
         kihieu: kihieus[i],
         truong: truongs[i],
         nganh: nganhs[i]
-      }));
-    return resultObj;      
+    }));
+    return resultObj;
 }
-function getListMatranPhuongAn()
-{
+function getListMatranPhuongAn() {
     let kihieus = $('.kihieu').map((i, el) => $(el).text().trim()).get();
     var ListMT = [];
-    $('#multiSelect').val().forEach(function(item, index)
-    {
+    $('#multiSelect').val().forEach(function (item, index) {
         var matrix = new Array(matrixLegth);
-        for(let i = 0; i < kihieus.length; i++)
-        {
+        for (let i = 0; i < kihieus.length; i++) {
             matrix[i] = new Array(matrixLegth);
-            for(let j = 0; j < kihieus.length; j ++)
-            {
+            for (let j = 0; j < kihieus.length; j++) {
                 matrix[i][j] = $(`#${item}_${i}_${j}`).val();
             }
         }
@@ -374,70 +378,81 @@ function getListMatranPhuongAn()
 let pieChartInstance = null; // giữ biểu đồ hiện tại
 
 function genPieChart(arr) {
-  const randomColor = () =>
-    `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
+    const randomColor = () =>
+        `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
 
-  const getColors = (n) => Array.from({ length: n }, () => randomColor());
+    const getColors = (n) => Array.from({ length: n }, () => randomColor());
 
-  const labels = arr.map(item => item.kihieu);
-  const values = arr.map(item => Number(item.cw.toFixed(4)));
-  const colors = getColors(arr.length);
+    const labels = arr.map(item => item.kihieu);
+    const values = arr.map(item => Number(item.cw.toFixed(4)));
+    const colors = getColors(arr.length);
 
-  const data = {
-    labels: labels,
-    datasets: [{
-      data: values,
-      backgroundColor: colors,
-      borderWidth: 2
-    }]
-  };
+    const data = {
+        labels: labels,
+        datasets: [{
+            data: values,
+            backgroundColor: colors,
+            borderWidth: 2
+        }]
+    };
 
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'bottom',
-        labels: {
-          color: '#FFFFFF'
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    color: '#FFFFFF'
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function (context) {
+                        const label = context.label || '';
+                        const value = context.raw || 0;
+                        return `${label}: ${value.toFixed(4)}`;
+                    }
+                }
+            },
+            datalabels: {
+                color: '#000',
+                font: {
+                    weight: 'bold',
+                    size: 14
+                },
+                formatter: (value, ctx) => {
+                    return ctx.chart.data.labels[ctx.dataIndex];
+                }
+            }
         }
-      },
-      tooltip: {
-        callbacks: {
-          label: function (context) {
-            const label = context.label || '';
-            const value = context.raw || 0;
-            return `${label}: ${value.toFixed(4)}`;
-          }
-        }
-      },
-      datalabels: {
-        color: '#000',
-        font: {
-          weight: 'bold',
-          size: 14
-        },
-        formatter: (value, ctx) => {
-          return ctx.chart.data.labels[ctx.dataIndex];
-        }
-      }
+    };
+
+    const ctx = document.getElementById('myPieChart').getContext('2d');
+
+    // Nếu đã tồn tại biểu đồ → update
+    if (pieChartInstance) {
+        pieChartInstance.data = data;
+        pieChartInstance.options = options;
+        pieChartInstance.update();
+    } else {
+        // Chưa có thì khởi tạo lần đầu
+        pieChartInstance = new Chart(ctx, {
+            type: 'pie',
+            data: data,
+            options: options,
+            plugins: [ChartDataLabels]
+        });
     }
-  };
+}
 
-  const ctx = document.getElementById('myPieChart').getContext('2d');
+function submitNewCriterion() {
+    var tc = $("#newCriterion").val();
+    $("#multiSelect").append(new Option(tc, tc));
+    // Đóng modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById("staticBackdrop"));
+    modal.hide();
 
-  // Nếu đã tồn tại biểu đồ → update
-  if (pieChartInstance) {
-    pieChartInstance.data = data;
-    pieChartInstance.options = options;
-    pieChartInstance.update();
-  } else {
-    // Chưa có thì khởi tạo lần đầu
-    pieChartInstance = new Chart(ctx, {
-      type: 'pie',
-      data: data,
-      options: options,
-      plugins: [ChartDataLabels]
-    });
-  }
+    // Reset form
+    document.getElementById("addCriterionForm").reset();
 }

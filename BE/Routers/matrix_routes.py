@@ -27,7 +27,7 @@ def convert_matrix_to_numbers(matrix):
 @router.post("/validate-matrix")
 async def check_matrix(data: MatrixInput):
     numeric_matrix = convert_matrix_to_numbers(data.matrix)
-    gt, PA = calculate_CR(numeric_matrix)
+    gt, PA, CI, lamdamax, cv, sw = calculate_CR(numeric_matrix)
 
     ###Thu thập data dưới 0.1
     if 0< gt < 0.1:
@@ -72,6 +72,10 @@ async def check_matrix(data: MatrixInput):
     return {
         "cr": round(gt, 4),
         "criteria_weights": PA,
+        "consistency_vector": cv,
+        "sumweight": sw,
+        "CI": round(CI,4),
+        "lamda": round(lamdamax,4),
         "_id":_id,
         "rcm": recomment.to_dict(orient="records")
     }
