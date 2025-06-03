@@ -68,3 +68,16 @@ def calculate_CR(matrix):
 # ])
 
 # print(calculate_CR(matrix))
+# A = np.array([
+#     [1,     1/3,   1/4,  1/5,  1/3],
+#     [3,     1,     3,    3,    2  ],
+#     [4,     1/3,   1,    3,    2  ],
+#     [5,     1/3,   1/3,  1,    1  ],
+#     [3,     1/2,   1/2,  1,    1  ]
+# ], dtype=float)
+
+# CR, arr_avg, CI, lamda_max, arr_CV, arr_WSV = calculate_CR(A.copy())
+# print("CR      =", CR)
+# print("λ_max   =", lamda_max)
+# print("CI      =", CI)
+# print("Weights =", arr_avg)

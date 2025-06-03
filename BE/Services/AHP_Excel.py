@@ -277,26 +277,26 @@ def ahpExcel(tieuchis, matran):
 
 
 
-    # wb.save("AHP.xlsx")
-    filename = "AHP.xlsx"   
-    wb.save(filename)
-    return filename
+    wb.save("AHP2.xlsx")
+    # filename = "AHP.xlsx"   
+    # wb.save(filename)
+    # return filename
 
 
-# arr = ["Địa điểm","Điểm đầu vào", "Học phí", "Chất lượng đào tạo", "Cơ sở vật chất"]
-# matrix = np.array([
-#     [1, 2, 4, 5, 1],
-#     [1/2, 1, 2, 3, 2],
-#     [1/4, 1/2, 1, 1/3, 3],
-#     [1/5, 1/3, 3, 1, 1/5],
-#     [1, 1/2, 1/3, 5, 1],
-# ])
+arr = ["Địa điểm","Điểm đầu vào", "Học phí", "Chất lượng đào tạo", "Cơ sở vật chất"]
+matrix = np.array([
+    [1, 2, 4, 5, 1],
+    [1/2, 1, 2, 3, 2],
+    [1/4, 1/2, 1, 1/3, 3],
+    [1/5, 1/3, 3, 1, 1/5],
+    [1, 1/2, 1/3, 5, 1],
+])
 
-# arr_tc = [
-#     {"ten": "Đại học A", "kihieu": "A"},
-#     {"ten": "Đại học B", "kihieu": "B"},
-#     {"ten": "Đại học C", "kihieu": "C"},
-#     {"ten": "Đại học D", "kihieu": "D"},
-# ]
+arr_tc = [
+    {"ten": "Đại học A", "kihieu": "A"},
+    {"ten": "Đại học B", "kihieu": "B"},
+    {"ten": "Đại học C", "kihieu": "C"},
+    {"ten": "Đại học D", "kihieu": "D"},
+]
 
-# ahpExcel(arr, matrix)
+ahpExcel(arr, matrix)
