@@ -118,6 +118,21 @@ function nhapmatran(id, i, j) {
         sendEach(matrix, `${id}`);
     }
 }
+function trickger(){
+    let arr = $('#multiSelect').val()
+    arr.forEach(function(value){
+         trickgernhap(value)
+    }) 
+}
+
+function trickgernhap(id) {
+    let danhSach = $('.kihieu').map((i, el) => $(el).text().trim()).get();
+    let matrix = GetMatrix(danhSach.length, id);
+    if (validateMatrix(matrix)) {
+        console.log(matrix);
+        sendEach(matrix, `${id}`);
+    }
+}
 
 function gcd(a, b) {
     return b === 0 ? a : gcd(b, a % b);
@@ -455,4 +470,55 @@ function submitNewCriterion() {
 
     // Reset form
     document.getElementById("addCriterionForm").reset();
+}
+
+function genCacMaTranPhuongAn(arr){
+    var tcs = $("#multiSelect").val();
+    let kihieus = $('.kihieu').map((i, el) => $(el).text().trim()).get();
+    for (let i = 0; i < tcs.length; i++) {
+        for (let a = 0; a < kihieus.length; a++) {
+            for (let b = 0; b < kihieus.length; b++) {
+                $(`#${tcs[i]}_${a}_${b}`).val(arr[i].matran[a][b]);
+            }
+        }
+    }
+}
+
+function getCacMaTranPhuongAn() {
+    var tcs = $("#multiSelect").val();
+    let kihieus = $('.kihieu').map((i, el) => $(el).text().trim()).get();
+    var ketqua = []
+    for (let i = 0; i < tcs.length; i++) {
+        let matran = []
+        for (let a = 0; a < kihieus.length; a++) {
+            let row = []
+            for (let b = 0; b < kihieus.length; b++) {
+                row.push($(`#${tcs[i]}_${a}_${b}`).val());
+            }
+            matran.push(row)
+        }
+        ketqua.push(matran)
+    }
+    return ketqua
+}
+
+function getLablemuti() {
+    let kihieus = $('.kihieu').map((i, el) => $(el).text().trim()).get();
+    let truongs = $('.truong').map((i, el) => $(el).text().trim()).get();
+    let nganhs = $('.nganh').map((i, el) => $(el).text().trim()).get();
+    let arr = []
+    for (let i = 0; i < kihieus.length; i++) {
+        arr.push({ten: truongs[i], kihieu: kihieus[i], nganh:nganhs[i]})
+    }
+    return arr
+}
+
+function getFullExcel()
+{
+    return {
+        tieuchis: $('#multiSelect').select2('data').map(item => item.text),
+        matrantieuchi: GomMatrix(),
+        phuongans: getLablemuti(),
+        matranphuongan: getCacMaTranPhuongAn()
+    }
 }

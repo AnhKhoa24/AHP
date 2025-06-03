@@ -4,6 +4,7 @@ import { genChoices } from './broaden.js';
 import { TaoBangPhuongAn } from './broaden.js';
 import { TaoBangTamLuuAo } from './broaden.js';
 import { genBangExcel } from './broaden.js';
+import { genChoicesMuti } from './broaden.js';
 
 $(document).ready(function () {
 
@@ -219,12 +220,17 @@ $("#importfile").on('click', function () {
         .then(data => {
             swal("Thành công!", "Bạn đã nhập vào excel!", "success");
             console.log(data);
-            TaoBang(data.criteria);
+            TaoBang(data.sheet1.label);
             $('#tb_rank_head').addClass('visible');
-            TaoCauHoi(data.criteria);
-            genBangExcel(data.matrix);
-            sendMatrix(data.matrix, data.full);
-            updateMultiSelect(data.full);
+            TaoCauHoi(data.sheet1.label);
+            genBangExcel(data.sheet1.matran);
+            sendMatrix(data.sheet1.matran, data.sheet1.full);
+            updateMultiSelect(data.sheet1.full);
+            genChoicesMuti(data.sheet2.ghichu);
+            $("#tao_mt_phuongan").click();
+            genCacMaTranPhuongAn(data.sheet2.data);
+            trickger();
+            
         })
         .catch(error => {
             console.error(error);
@@ -259,37 +265,64 @@ function updateMultiSelect(apiData) {
 
 $("#exportExcelBtn").on('click', function (event) {
     event.preventDefault();
-    const payload = {
-        criteria: $('#multiSelect').select2('data').map(item => item.text),        // danh sách tiêu chí
-        matrix: GomMatrix()         // ma trận từ form của bạn
-    };
+    const payload = getFullExcel();
 
-    fetch(url + "Excel", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("Tải file thất bại");
-        }
-        return response.blob();
-    })
-    .then(blob => {
-        const urlBlob = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = urlBlob;
-        link.download = "AHP_Result.xlsx";
-        link.target = "_blank"; // có thể thay đổi tên file
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    })
-    .catch(error => {
-        console.error("Lỗi:", error);
-        alert("Đã xảy ra lỗi khi tải file.");
-    });
+    downloadExcel(payload)
 
 })
+
+// 1) Hàm format thời gian hiện tại thành chuỗi YYYYMMDD_HHMMSS
+  function getTimestamp() {
+    const now = new Date();
+    const pad2 = n => n.toString().padStart(2, '0');
+
+    const year  = now.getFullYear();
+    const month = pad2(now.getMonth() + 1);
+    const day   = pad2(now.getDate());
+    const hour  = pad2(now.getHours());
+    const min   = pad2(now.getMinutes());
+    const sec   = pad2(now.getSeconds());
+
+    return `${year}${month}${day}_${hour}${min}${sec}`;
+  }
+async function downloadExcel(payload) {
+    try {
+      // Gọi API, yêu cầu response dưới dạng blob
+      const response = await fetch("http://localhost:8000/full_excel_v2", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${await response.text()}`);
+      }
+
+      // 3) Lấy blob từ response
+      const blob = await response.blob();
+
+      // 4) Tạo URL tạm thời cho blob
+      const url = window.URL.createObjectURL(blob);
+
+      // 5) Tạo phần tử <a> ẩn, gán href = URL blob, download = fileName
+      const link = document.createElement("a");
+      const timestamp = getTimestamp();
+      const fileName = `AHP_${timestamp}.xlsx`; 
+      link.href = url;
+      link.download = fileName;
+
+      // 6) Thêm vào DOM và click để kích hoạt download
+      document.body.appendChild(link);
+      link.click();
+
+      // 7) Dọn dẹp: remove link và revoke URL
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+      console.error("Lỗi khi tải file Excel:", err);
+      alert("Không tải được file. Vui lòng thử lại.");
+    }
+  }

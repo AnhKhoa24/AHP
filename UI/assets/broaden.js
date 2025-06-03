@@ -90,6 +90,29 @@ export function genChoices() {
 </tr>`;
     $('#tb_school').append(html);
 }
+
+export function genChoicesMuti(arr)
+{
+    $('#tb_school').empty();
+    for(let i = 0; i < arr.truong.length; i++){
+         var html = `<tr>
+    <td class="pt-1 pb-1 text-center truong" style="width: 45%">` + arr.truong[i] + `</td>
+    <td class="pt-1 pb-1 text-center nganh" style="width: 25%">` + arr.nganhhoc[i] + `</td>
+    <td class="pt-1 pb-1 text-center kihieu" style="width: 20%">` + arr.kihieu[i] + `</td>
+    <td class="text-center align-middle" style="width: 10%">
+    <div class="d-flex justify-content-center pt-1 pb-1">
+        <button onclick="BoLuaChon(this)" class="btn btn-danger btn-sm rounded-circle d-flex align-items-center justify-content-center"
+                style="width: 28px; height: 28px; margin-right: 4px;">
+            <i class="bi bi-trash"></i>
+        </button>
+    </div>
+</td>
+
+</tr>`;
+    $('#tb_school').append(html);
+    }
+}
+
 function vietTat(chuoi) {
     return chuoi
         .split(/\s+/)                      
@@ -124,7 +147,7 @@ function BangPhuongAn(tieuchi_text, tieuchi_id) {
 
     tBody += `<tr><td style="padding: 5px;" colspan="${danhSach.length}">CR:</td><td class="cr_phuongan" id="cr_${tieuchi_id}" style="padding: 5px;"></td></tr></tbody>`;
 
-    return `<div class="col-md-6 mb-2"><table class="table table-bordered text-center">` + tHead + tBody + `</table></div>`;
+    return `<div class="col-md-6 mb-2"><table class="table table-bordered text-center" id="bangpa_${tieuchi_id}">` + tHead + tBody + `</table></div>`;
 }
 export function TaoBangPhuongAn() {
     var listTC = $('#multiSelect').select2('data')
