@@ -5,6 +5,9 @@ import { TaoBangPhuongAn } from './broaden.js';
 import { TaoBangTamLuuAo } from './broaden.js';
 import { genBangExcel } from './broaden.js';
 import { genChoicesMuti } from './broaden.js';
+import { checkBang } from './broaden.js';
+import { GenCauHoiEx } from './broaden.js';
+
 
 $(document).ready(function () {
 
@@ -192,6 +195,12 @@ $("#tao_mt_phuongan").on('click', function () {
     }
 });
 
+function CustomMTClick()
+{
+    TaoBangPhuongAn();
+    TaoBangTamLuuAo();
+    _import = 1;
+}
 $("#importfile").on('click', function () {
     // Đóng modal
     const modal = bootstrap.Modal.getInstance(document.getElementById('importFile'));
@@ -222,12 +231,16 @@ $("#importfile").on('click', function () {
             console.log(data);
             TaoBang(data.sheet1.label);
             $('#tb_rank_head').addClass('visible');
+            // console.log("checkk: "+ data.check.error)
+            checkBang(data.check.error);
             TaoCauHoi(data.sheet1.label);
             genBangExcel(data.sheet1.matran);
             sendMatrix(data.sheet1.matran, data.sheet1.full);
             updateMultiSelect(data.sheet1.full);
+            GenCauHoiEx(data.sheet1.matran);
             genChoicesMuti(data.sheet2.ghichu);
-            $("#tao_mt_phuongan").click();
+            // $("#tao_mt_phuongan").click();
+            CustomMTClick()
             genCacMaTranPhuongAn(data.sheet2.data);
             trickger();
             

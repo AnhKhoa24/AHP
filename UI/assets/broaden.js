@@ -8,15 +8,15 @@ export function TaoBang(arr) {
     var tr_html = `<th></th>`;
     $('#tb_matrix').empty();
     for (let i = 0; i < arr.length; i++) {
-        tr_html += `<th style="min-width: 150px;">${arr[i]}</th>`;
+        tr_html += `<th style="min-width: 150px; ${arr[i] === 'null' ? 'background-color: red; color: white;' : ''}">${arr[i]}</th>`;
 
-        var each_tr = `<td style="padding: 6px; min-width: 150px;" class="border-bottom border-light fw-bold table-primary text-center">${arr[i]}</td>`;
+        var each_tr = `<td style="padding: 6px; min-width: 150px;${arr[i] === 'null' ? 'background-color: red; color: white;' : ''}" class="border-bottom border-light fw-bold table-primary text-center">${arr[i]}</td>`;
         for (let j = 0; j < arr.length; j++) {
             if (i == j) {
-                each_tr += ` <td><input type="text" value=1 class="form-control text-center rounded-0 bg-warning" id="td_${i}_${j}" readonly></td>`
+                each_tr += ` <td><input type="text" oninput="FixDuongCheoChinh(this)" value=1 class="form-control text-center rounded-0 bg-warning" id="td_${i}_${j}" readonly></td>`
             }
             else {
-                each_tr += ` <td><input type="text" class="form-control text-center rounded-0 ${i > j ? 'bg-info' : ''}" id="td_${i}_${j}" ${i > j ? 'readonly' : ''}
+                each_tr += ` <td><input type="text" oninput="NhapOTrucTiep(${i},${j})" class="form-control text-center rounded-0 ${i > j ? 'bg-info' : ''}" id="td_${i}_${j}" ${i > j ? 'readonly' : ''}
 "></td>`
             }
         }
@@ -26,6 +26,20 @@ export function TaoBang(arr) {
     $('#tr_matrix').html(tr_html);
     TaoBangDanhGia(arr);
 }
+
+export function checkBang(arr) {
+  for (let i = 0; i < arr.length; i++) {
+    const $el = $(`#td_${arr[i].x}_${arr[i].y}`);
+
+    if ($el.hasClass("bg-warning")) {
+      $el.removeAttr("readonly");
+    }
+
+    $el.removeClass("bg-warning bg-info")
+       .addClass("bg-danger");
+  }
+}
+
 
 function TaoBangDanhGia(arr) {
     $('#tb_rank').empty();
@@ -46,7 +60,6 @@ export function TaoCauHoi(arr) {
     var html = ``;
     for (let i = 0; i < arr.length; i++) {
         for (let j = i + 1; j < arr.length; j++) {
-            // console.log(`So sánh: ${i} với ${j}`);
             html += `<div class="carousel-item ${i + j == 1 ? 'active' : ""}" id="slide_${i}_${j}">
                             <div
                                 class="container input-range-container d-flex flex-column justify-content-center align-items-center p-4">
@@ -73,6 +86,19 @@ export function TaoCauHoi(arr) {
     }
 }
 
+export function GenCauHoiEx(matrix){
+    let myArray = ['1/9', '1/8', '1/7', '1/6', '1/5', '1/4', '1/3', '1/2', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    for(let i = 0; i < matrix.length; i ++){
+        for(let j = 1; j < matrix.length; j ++){
+            if(j > i){
+                let idx = myArray.indexOf(matrix[i][j]);
+                $(`#range_${i}_${j}`).val(idx);
+                $(`#value_${i}_${j}`).text(matrix[i][j]);
+            }
+        }
+    }
+}
+
 export function genChoices() {
     var html = `<tr>
     <td class="pt-1 pb-1 text-center truong" style="width: 45%">` + $('#chon_truong option:selected').text() + `</td>
@@ -91,11 +117,10 @@ export function genChoices() {
     $('#tb_school').append(html);
 }
 
-export function genChoicesMuti(arr)
-{
+export function genChoicesMuti(arr) {
     $('#tb_school').empty();
-    for(let i = 0; i < arr.truong.length; i++){
-         var html = `<tr>
+    for (let i = 0; i < arr.truong.length; i++) {
+        var html = `<tr>
     <td class="pt-1 pb-1 text-center truong" style="width: 45%">` + arr.truong[i] + `</td>
     <td class="pt-1 pb-1 text-center nganh" style="width: 25%">` + arr.nganhhoc[i] + `</td>
     <td class="pt-1 pb-1 text-center kihieu" style="width: 20%">` + arr.kihieu[i] + `</td>
@@ -109,16 +134,16 @@ export function genChoicesMuti(arr)
 </td>
 
 </tr>`;
-    $('#tb_school').append(html);
+        $('#tb_school').append(html);
     }
 }
 
 function vietTat(chuoi) {
     return chuoi
-        .split(/\s+/)                      
-        .filter(tu => tu.length > 0)       
-        .map(tu => tu[0].toUpperCase())    
-        .join('');                        
+        .split(/\s+/)
+        .filter(tu => tu.length > 0)
+        .map(tu => tu[0].toUpperCase())
+        .join('');
 }
 
 function BangPhuongAn(tieuchi_text, tieuchi_id) {
@@ -200,11 +225,9 @@ function getMaTranTieuChi() {
 
 
 ///Gen bảng từ excel 
-export function genBangExcel(arr)
-{
-    for(let i = 0; i < arr.length; i++){
-        for(let j = 0; j < arr.length; j++)
-        {
+export function genBangExcel(arr) {
+    for (let i = 0; i < arr.length; i++) {
+        for (let j = 0; j < arr.length; j++) {
             $(`#td_${i}_${j}`).val(arr[i][j])
         }
     }

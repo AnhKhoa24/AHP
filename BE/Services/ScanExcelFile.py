@@ -21,35 +21,135 @@ def to_fraction_str(value):
         return f"{frac.numerator}/{frac.denominator}"
 
 
+# def extract_sheet1_from_wb(wb):
+#     """
+#     Đọc Sheet1 (index = 0) từ 'wb', tìm cặp dấu '*' (header, footer),
+#     sau đó:
+#       - "label": mảng tiêu đề cột (lấy từ hàng header, bỏ ô '*' và ô trống)
+#       - "full": mảng các dict {"id": <ký tự đầu mỗi từ, in thường>, "text": <label>}
+#       - "matran": ma trận vuông nxn (n = len(label)), với:
+#           + nếu i == j → "1"
+#           + nếu j > i → đọc từ file (hàng header_row_idx+i+1, cột data_column_indices[j])
+#           + nếu j < i → nghịch đảo (1/x) của giá trị ở (j, i)
+#     Trả về dict theo mẫu:
+#     {
+#       "label": [...],
+#       "full": [
+#          {"id": "dd", "text": "Địa điểm"},
+#          ...
+#       ],
+#       "matran": [
+#          ["1", "2", "4", "5", "1"],
+#          ["1/2", "1", "2", "3", "2"],
+#          ...
+#       ]
+#     }
+#     """
+#     if len(wb.worksheets) < 1:
+#         raise ValueError("Workbook không có sheet thứ nhất.")
+#     sheet = wb.worksheets[0]
+
+#     # 1) Tìm tất cả các hàng chứa dấu '*'
+#     marker_rows = []
+#     for idx, row in enumerate(sheet.iter_rows(values_only=True), start=1):
+#         if any(cell == "*" for cell in row if cell is not None):
+#             marker_rows.append(idx)
+
+#     if len(marker_rows) < 2:
+#         raise ValueError("Không tìm thấy đủ 2 dấu '*' trên Sheet1.")
+
+#     header_row_idx = marker_rows[0]
+#     footer_row_idx = marker_rows[1]
+
+#     # 2) Xác định "label" và "full"
+#     header_cells = list(sheet[header_row_idx])
+#     labels = []
+#     label_column_indices = []
+#     for col_idx, cell in enumerate(header_cells, start=1):
+#         val = cell.value
+#         if val not in (None, "", "*"):
+#             labels.append(str(val))
+#             label_column_indices.append(col_idx)
+
+#     # Tạo full = [{"id": ..., "text": ...}, ...]
+#     full = []
+#     for label in labels:
+#         # Mỗi từ lấy ký tự đầu, chuyển xuống lowercase, rồi nối lại
+#         words = label.split()
+#         id_str = "".join(word[0].lower() for word in words if len(word) > 0)
+#         full.append({"id": id_str, "text": label})
+
+#     # 3) Xây ma trận vuông nxn
+#     n = len(labels)
+#     matran = [["0"] * n for _ in range(n)]
+
+#     # Tập hợp danh sách hàng dữ liệu (chỉ những hàng không hoàn toàn trống) từ header_row_idx+1 đến footer_row_idx-1
+#     row_indices = []
+#     for r in range(header_row_idx + 1, footer_row_idx):
+#         row_vals = [cell.value for cell in sheet[r]]
+#         if all(v in (None, "") for v in row_vals):
+#             continue
+#         row_indices.append(r)
+
+#     if len(row_indices) < n:
+#         raise ValueError(f"Số dòng dữ liệu ({len(row_indices)}) không khớp với số label ({n}).")
+
+#     # 3.1) Điền giá trị cho từng cặp (i, j)
+#     for i in range(n):
+#         for j in range(n):
+#             if i == j:
+#                 matran[i][j] = "1"
+#             elif j > i:
+#                 raw = sheet.cell(row=row_indices[i], column=label_column_indices[j]).value
+#                 matran[i][j] = to_fraction_str(raw)
+#             else:
+#                 prev = matran[j][i]
+#                 try:
+#                     frac = Fraction(prev)
+#                     inv = Fraction(frac.denominator, frac.numerator)
+#                     if inv.denominator == 1:
+#                         matran[i][j] = str(inv.numerator)
+#                     else:
+#                         matran[i][j] = f"{inv.numerator}/{inv.denominator}"
+#                 except Exception:
+#                     matran[i][j] = "0"
+
+#     return {
+#         "label": labels,
+#         "full": full,
+#         "matran": matran
+#     }
+
 def extract_sheet1_from_wb(wb):
     """
     Đọc Sheet1 (index = 0) từ 'wb', tìm cặp dấu '*' (header, footer),
     sau đó:
-      - "label": mảng tiêu đề cột (lấy từ hàng header, bỏ ô '*' và ô trống)
+      - "label": mảng tiêu đề cột (lấy từ hàng header, bỏ ô '*', 
+                  nếu ô rỗng thì "null")
       - "full": mảng các dict {"id": <ký tự đầu mỗi từ, in thường>, "text": <label>}
       - "matran": ma trận vuông nxn (n = len(label)), với:
-          + nếu i == j → "1"
-          + nếu j > i → đọc từ file (hàng header_row_idx+i+1, cột data_column_indices[j])
-          + nếu j < i → nghịch đảo (1/x) của giá trị ở (j, i)
-    Trả về dict theo mẫu:
+          + i == j: cố gắng đọc ô, nếu không đọc được → "1"
+          + j > i: cố gắng đọc ô, nếu không đọc được → "0"
+          + j < i: cố gắng đọc ô, nếu không đọc được → nghịch đảo của matran[j][i]
+    Trả về dict:
     {
       "label": [...],
-      "full": [
-         {"id": "dd", "text": "Địa điểm"},
-         ...
-      ],
+      "full": [ {"id":"dd","text":"Địa điểm"}, ... ],
       "matran": [
-         ["1", "2", "4", "5", "1"],
-         ["1/2", "1", "2", "3", "2"],
-         ...
+         ["1", "2", "4", …],
+         ["1/2", "1", "3", …],
+         …
       ]
     }
     """
-    if len(wb.worksheets) < 1:
+    from openpyxl.worksheet.worksheet import Worksheet
+
+    # 1) Lấy sheet đầu tiên
+    if not wb.worksheets:
         raise ValueError("Workbook không có sheet thứ nhất.")
     sheet = wb.worksheets[0]
 
-    # 1) Tìm tất cả các hàng chứa dấu '*'
+    # 2) Tìm tất cả các hàng chứa dấu '*'
     marker_rows = []
     for idx, row in enumerate(sheet.iter_rows(values_only=True), start=1):
         if any(cell == "*" for cell in row if cell is not None):
@@ -61,32 +161,50 @@ def extract_sheet1_from_wb(wb):
     header_row_idx = marker_rows[0]
     footer_row_idx = marker_rows[1]
 
-    # 2) Xác định "label" và "full"
-    header_cells = list(sheet[header_row_idx])
+    # 3) Xác định cột của dấu '*' ở header và footer
+    header_row = list(sheet[header_row_idx])
+    footer_row = list(sheet[footer_row_idx])
+
+    header_star_cols = [cell.column for cell in header_row 
+                        if isinstance(cell.value, str) and cell.value.strip() == "*"]
+    footer_star_cols = [cell.column for cell in footer_row 
+                        if isinstance(cell.value, str) and cell.value.strip() == "*"]
+
+    if not header_star_cols or not footer_star_cols:
+        raise ValueError("Không xác định được cột chứa '*' ở header hoặc footer.")
+
+    c1 = min(header_star_cols)
+    c2 = max(footer_star_cols)
+
+    # 4) Đọc "label": từ cột (c1+1) đến (c2-1) trên hàng header_row_idx
     labels = []
     label_column_indices = []
-    for col_idx, cell in enumerate(header_cells, start=1):
-        val = cell.value
-        if val not in (None, "", "*"):
-            labels.append(str(val))
-            label_column_indices.append(col_idx)
+    for col_idx in range(c1 + 1, c2):
+        cell_val = sheet.cell(row=header_row_idx, column=col_idx).value
+        if cell_val is None or str(cell_val).strip() == "":
+            labels.append("null")
+        else:
+            labels.append(str(cell_val))
+        label_column_indices.append(col_idx)
 
-    # Tạo full = [{"id": ..., "text": ...}, ...]
+    n = len(labels)
+    if n == 0:
+        raise ValueError("Không có label nào giữa hai dấu '*'.")
+
+    # Tạo mục "full"
     full = []
     for label in labels:
-        # Mỗi từ lấy ký tự đầu, chuyển xuống lowercase, rồi nối lại
-        words = label.split()
-        id_str = "".join(word[0].lower() for word in words if len(word) > 0)
+        if label == "null":
+            id_str = ""
+        else:
+            words = label.split()
+            id_str = "".join(word[0].lower() for word in words if word)
         full.append({"id": id_str, "text": label})
 
-    # 3) Xây ma trận vuông nxn
-    n = len(labels)
-    matran = [["0"] * n for _ in range(n)]
-
-    # Tập hợp danh sách hàng dữ liệu (chỉ những hàng không hoàn toàn trống) từ header_row_idx+1 đến footer_row_idx-1
+    # 5) Tập hợp danh sách chỉ số dòng chứa dữ liệu giữa header và footer
     row_indices = []
     for r in range(header_row_idx + 1, footer_row_idx):
-        row_vals = [cell.value for cell in sheet[r]]
+        row_vals = [sheet.cell(row=r, column=c).value for c in range(1, sheet.max_column + 1)]
         if all(v in (None, "") for v in row_vals):
             continue
         row_indices.append(r)
@@ -94,33 +212,46 @@ def extract_sheet1_from_wb(wb):
     if len(row_indices) < n:
         raise ValueError(f"Số dòng dữ liệu ({len(row_indices)}) không khớp với số label ({n}).")
 
-    # 3.1) Điền giá trị cho từng cặp (i, j)
+    # 6) Khởi tạo ma trận nxn (kiểu chuỗi)
+    matran = [["0"] * n for _ in range(n)]
+
     for i in range(n):
         for j in range(n):
+            excel_row = row_indices[i]
+            excel_col = label_column_indices[j]
+            raw_value = sheet.cell(row=excel_row, column=excel_col).value
+
             if i == j:
-                matran[i][j] = "1"
+                # Đường chéo chính: cố gắng đọc, nếu None → "1"
+                frac_str = to_fraction_str(raw_value)
+                matran[i][j] = frac_str if frac_str is not None else "1"
             elif j > i:
-                raw = sheet.cell(row=row_indices[i], column=label_column_indices[j]).value
-                matran[i][j] = to_fraction_str(raw)
+                # Trên đường chéo: cố gắng đọc, nếu None → "0"
+                frac_str = to_fraction_str(raw_value)
+                matran[i][j] = frac_str if frac_str is not None else "0"
             else:
-                prev = matran[j][i]
-                try:
-                    frac = Fraction(prev)
-                    inv = Fraction(frac.denominator, frac.numerator)
-                    if inv.denominator == 1:
-                        matran[i][j] = str(inv.numerator)
-                    else:
-                        matran[i][j] = f"{inv.numerator}/{inv.denominator}"
-                except Exception:
-                    matran[i][j] = "0"
+                # Dưới đường chéo: cố gắng đọc, nếu None → nghịch đảo của matran[j][i]
+                frac_str = to_fraction_str(raw_value)
+                if frac_str is not None:
+                    matran[i][j] = frac_str
+                else:
+                    # Lấy nghịch đảo của matran[j][i]
+                    upper = matran[j][i]
+                    try:
+                        f = Fraction(upper)
+                        inv = Fraction(f.denominator, f.numerator)
+                        if inv.denominator == 1:
+                            matran[i][j] = str(inv.numerator)
+                        else:
+                            matran[i][j] = f"{inv.numerator}/{inv.denominator}"
+                    except Exception:
+                        matran[i][j] = "0"
 
     return {
         "label": labels,
         "full": full,
         "matran": matran
     }
-
-
 def extract_sheet2_from_wb(wb):
     """
     Đọc Sheet2 (index = 1) từ 'wb'. Có 2 phần chính:

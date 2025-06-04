@@ -1,4 +1,5 @@
 const url = "http://localhost:8000/";
+var _import = 0;
 function genRange(i, j) {
     let myArray = ['1/9', '1/8', '1/7', '1/6', '1/5', '1/4', '1/3', '1/2', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
     var valueRange = $(`#range_${i}_${j}`).val();
@@ -49,13 +50,18 @@ function sendMatrix(matrix, tieuchis) {
                 $('#c_choose').addClass('visible');
                 capNhatTienTrinh(20);
                 document.getElementById('c_choose').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                if (_import == 1) {
+                    capNhatTienTrinh(80);
+                    $('#section_pas').removeClass('d-none');
+                    document.getElementById('section_pas').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             } else {
                 $('#value_cr').closest('div').removeClass('bg-success').addClass('bg-danger');
                 $('#c_choose').removeClass('visible');
                 capNhatTienTrinh(0);
             }
             $('#value_cr').html('CR = ' + response.cr);
-            $('#lamda').html('Lamda_max = ' + response.lamda);
+            $('#lamda').html('&lambda;<sub>max</sub> = ' + response.lamda);
             $('#value_ci').html('CI = ' + response.CI);
 
             genDanhGia(response.criteria_weights, response.consistency_vector, response.sumweight, tieuchis);
@@ -77,9 +83,12 @@ function genDanhGia(arr_cw, arr_cv, arr_sw, tieuchis) {
     }));
     var sorted = merged.sort((a, b) => b.cw - a.cw);
     console.log(sorted);
+    console.log("gen danh gia-----")
 
     // var genlist = mergeObjectsAndSort(tieuchis, arr_cw);
     DoiDG(sorted);
+    genPieChartv2(sorted);
+    genBarChart(sorted);
 }
 function DoiDG(arr) {
     $('#tb_rank').empty();
@@ -94,14 +103,220 @@ function DoiDG(arr) {
     });
 }
 
-// function mergeObjectsAndSort(keys, values) {
-//     const merged = keys.map((item, index) => ({
-//         ...item,
-//         cw: values[index]
-//     }));
-//     merged.sort((a, b) => b.cw - a.cw);
-//     return merged;
-// }
+let barChartInstance = null;
+
+function genBarChart(arr) {
+    const labels = arr.map(item => item.text);
+
+    const cvValues = arr.map(item => Number(item.cv.toFixed(3)));
+    const swValues = arr.map(item => Number(item.sw.toFixed(3)));
+
+    const data = {
+        labels: labels,
+        datasets: [
+            {
+                label: 'cv',
+                data: cvValues,
+                backgroundColor: '#36A2EB',
+                borderColor: '#2680C0',
+                borderWidth: 1
+            },
+            {
+                label: 'sw',
+                data: swValues,
+                backgroundColor: '#FF6384',
+                borderColor: '#C02E54',
+                borderWidth: 1
+            }
+        ]
+    };
+
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {
+                ticks: {
+                    color: '#FFFFFF'
+                },
+                grid: {
+                    display: false
+                }
+            },
+            y: {
+                beginAtZero: true,
+                ticks: {
+
+                    callback: function (value) {
+                        return value.toFixed(2);
+                    },
+                    color: '#FFFFFF'
+                },
+                grid: {
+                    color: 'rgba(255,255,255,0.2)'
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    color: '#FFFFFF'
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function (context) {
+
+                        let label = context.dataset.label || '';
+                        let value = context.raw || 0;
+                        return `${label}: ${value.toFixed(2)}`;
+                    }
+                }
+            },
+            datalabels: {
+
+                anchor: 'end',
+                align: 'end',
+                color: '#FFFFFF',
+                font: {
+                    weight: 'bold',
+                    size: 12
+                },
+                formatter: (value) => {
+                    return value.toFixed(2);
+                }
+            }
+        }
+    };
+
+    const ctx = document.getElementById('myBarChart').getContext('2d');
+    if (barChartInstance) {
+
+        barChartInstance.data = data;
+        barChartInstance.options = options;
+        barChartInstance.update();
+    } else {
+
+        barChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: data,
+            options: options,
+            plugins: [ChartDataLabels]
+        });
+    }
+}
+
+
+let pieChartInstancev1 = null;
+
+function genPieChartv2(arr) {
+    const COLOR_PALETTE = [
+        '#FF6384', // đỏ hồng
+        '#36A2EB', // xanh dương
+        '#FFCE56', // vàng
+        '#4BC0C0', // xanh ngọc
+        '#9966FF', // tím
+        '#FF9F40', // cam
+        '#E7E9ED', // xám nhạt
+        '#8AFF33', // xanh lá chanh
+        '#FF33E3', // hồng neon
+        '#33FFF2'  // xanh ngọc sáng
+    ];
+
+    const labels = arr.map(item => item.text);
+    const values = arr.map(item => Number(item.cw.toFixed(2)));
+    const colors = COLOR_PALETTE.slice(0, arr.length);
+
+    const data = {
+        labels: labels,
+        datasets: [{
+            data: values,
+            backgroundColor: colors,
+            borderWidth: 2
+        }]
+    };
+
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    color: '#FFFFFF'
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function (context) {
+                        const label = context.label || '';
+                        const value = context.raw || 0;
+                        return `${label}: ${value.toFixed(2)} %`;
+                    }
+                }
+            },
+            datalabels: {
+                color: '#000',
+                font: {
+                    weight: 'bold',
+                    size: 14
+                },
+                formatter: (value, ctx) => {
+                    return ctx.chart.data.labels[ctx.dataIndex];
+                }
+            }
+        }
+    };
+
+    const ctx = document.getElementById('myPieChartv1').getContext('2d');
+
+    if (pieChartInstancev1) {
+        pieChartInstancev1.data = data;
+        pieChartInstancev1.options = options;
+        pieChartInstancev1.update();
+    } else {
+        // Chưa có thì khởi tạo lần đầu
+        pieChartInstancev1 = new Chart(ctx, {
+            type: 'pie',
+            data: data,
+            options: options,
+            plugins: [ChartDataLabels]
+        });
+    }
+}
+
+function NhapOTrucTiep(i, j) {
+    let myArray = ['1/9', '1/8', '1/7', '1/6', '1/5', '1/4', '1/3', '1/2', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    let idx = myArray.indexOf($(`#td_${i}_${j}`).val());
+    if (idx != -1) {
+        $(`#range_${i}_${j}`).val(idx);
+        $(`#value_${i}_${j}`).text($(`#td_${i}_${j}`).val());
+        GotoSlide(`slide_${i}_${j}`);
+        $(`#td_${i}_${j}`).removeClass("bg-warning bg-info bg-danger");
+        nhapmatranv1("td", i, j);
+    } else {
+        $(`#td_${i}_${j}`).addClass("bg-danger")
+    }
+    console.log(idx)
+}
+
+function nhapmatranv1(id, i, j) {
+    var value = $(`#${id}_${i}_${j}`).val();
+    $(`#${id}_${j}_${i}`).val(invertFraction(value));
+    $(`#${id}_${j}_${i}`).removeClass("bg-warning bg-info bg-danger").addClass("bg-info");
+    if (validateMatrix(GomMatrix())) {
+        console.log("call api");
+        var tieuchis = $('#multiSelect').select2('data').map(({ id, text }) => ({ id, text }));
+        sendMatrix(GomMatrix(), tieuchis);
+    }
+}
+
+function GotoSlide(id) {
+    let $target = $(`#${id}`);
+    let slideIndex = $target.index();
+    $("#ls_slides").carousel(slideIndex);
+}
 
 function BoLuaChon(button) {
     // Xóa dòng tr chứa nút được click
@@ -118,11 +333,11 @@ function nhapmatran(id, i, j) {
         sendEach(matrix, `${id}`);
     }
 }
-function trickger(){
+function trickger() {
     let arr = $('#multiSelect').val()
-    arr.forEach(function(value){
-         trickgernhap(value)
-    }) 
+    arr.forEach(function (value) {
+        trickgernhap(value)
+    })
 }
 
 function trickgernhap(id) {
@@ -386,22 +601,25 @@ function getListMatranPhuongAn() {
     });
     return ListMT;
 }
-
-
-
 // Hàm tạo bảng biểu đồ tròn
 let pieChartInstance = null; // giữ biểu đồ hiện tại
 
 function genPieChart(arr) {
-    const randomColor = () =>
-        `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
-
-    const getColors = (n) => Array.from({ length: n }, () => randomColor());
-
+    const COLOR_PALETTE = [
+        '#FF6384', // đỏ hồng
+        '#36A2EB', // xanh dương
+        '#FFCE56', // vàng
+        '#4BC0C0', // xanh ngọc
+        '#9966FF', // tím
+        '#FF9F40', // cam
+        '#E7E9ED', // xám nhạt
+        '#8AFF33', // xanh lá chanh
+        '#FF33E3', // hồng neon
+        '#33FFF2'  // xanh ngọc sáng
+    ];
     const labels = arr.map(item => item.kihieu);
     const values = arr.map(item => Number(item.cw.toFixed(4)));
-    const colors = getColors(arr.length);
-
+    const colors = COLOR_PALETTE.slice(0, arr.length);
     const data = {
         labels: labels,
         datasets: [{
@@ -426,7 +644,7 @@ function genPieChart(arr) {
                     label: function (context) {
                         const label = context.label || '';
                         const value = context.raw || 0;
-                        return `${label}: ${value.toFixed(4)}`;
+                        return `${label}: ${value.toFixed(2)} %`;
                     }
                 }
             },
@@ -472,7 +690,7 @@ function submitNewCriterion() {
     document.getElementById("addCriterionForm").reset();
 }
 
-function genCacMaTranPhuongAn(arr){
+function genCacMaTranPhuongAn(arr) {
     var tcs = $("#multiSelect").val();
     let kihieus = $('.kihieu').map((i, el) => $(el).text().trim()).get();
     for (let i = 0; i < tcs.length; i++) {
@@ -508,17 +726,32 @@ function getLablemuti() {
     let nganhs = $('.nganh').map((i, el) => $(el).text().trim()).get();
     let arr = []
     for (let i = 0; i < kihieus.length; i++) {
-        arr.push({ten: truongs[i], kihieu: kihieus[i], nganh:nganhs[i]})
+        arr.push({ ten: truongs[i], kihieu: kihieus[i], nganh: nganhs[i] })
     }
     return arr
 }
 
-function getFullExcel()
-{
+function getFullExcel() {
     return {
         tieuchis: $('#multiSelect').select2('data').map(item => item.text),
         matrantieuchi: GomMatrix(),
         phuongans: getLablemuti(),
         matranphuongan: getCacMaTranPhuongAn()
+    }
+}
+
+function FixDuongCheoChinh(el) {
+    const currentValue = el.value;
+
+    const $el = $(el);
+    if (currentValue == 1) {
+        if ($el.hasClass("bg-danger")) {
+            $el
+                .removeClass("bg-danger")
+                .addClass("bg-warning");
+        }
+        if (!$el.is("[readonly]")) {
+            $el.attr("readonly", true);
+        }
     }
 }

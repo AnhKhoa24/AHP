@@ -5,6 +5,7 @@ from Services.dang import ahpExcel
 import numpy as np
 from fastapi.responses import FileResponse, JSONResponse
 from Services.ScanExcelFile import extract_sheet1_from_wb, extract_sheet2_from_wb
+from Services.checkExcel import check_ahp_table_from_wb
 from io import BytesIO
 from fastapi import HTTPException
 import openpyxl
@@ -60,10 +61,16 @@ async def upload_ahp_excel(file: UploadFile = File(...)):
         sheet2_data = extract_sheet2_from_wb(wb)
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"Lỗi khi trích xuất Sheet2: {exc}")
+    
+    try:
+        check = check_ahp_table_from_wb(wb)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"Lỗi khi trích xuất Sheet2: {exc}")
 
     result = {
         "sheet1": sheet1_data,
-        "sheet2": sheet2_data
+        "sheet2": sheet2_data,
+        "check": check
     }
     return JSONResponse(content=result, status_code=200)
 
@@ -93,11 +100,12 @@ async def receive_full_excel(payload: FullExcel):
     arr_truongNganh = [
         {
             "ten": pa.ten,
-            "nganh": pa.kihieu,
-            "kihieu": pa.nganh
+            "nganh": pa.nganh,
+            "kihieu": pa.kihieu
         }
         for pa in payload.phuongans
     ]
+    print(arr_truongNganh)
 
     list_matrices_phuongs = []
     for mat_str in payload.matranphuongan:
